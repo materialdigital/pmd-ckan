@@ -1,3 +1,6 @@
 [submodule "ckan-docker"]
 	path = ckan-docker
 	url = https://github.com/ckan/ckan-docker
+[submodule "ckan_plugins/ckanext-csvtocsvw"]
+	path = ckan_plugins/ckanext-csvtocsvw
+	url = git@github.com:Mat-O-Lab/ckanext-csvtocsvw.git
