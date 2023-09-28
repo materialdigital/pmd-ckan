@@ -47,7 +47,10 @@ services:
       - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}" 
     volumes:
       - ckan_storage:/var/lib/ckan
+      - ./ckan.ini:/srv/app/ckan.ini
       - ./ckan_plugins:/srv/app/src_extensions
+      - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
+      - ./logs:/var/log/ckan/
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:${CKAN_PORT}"]
