@@ -105,7 +105,7 @@ services:
     entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CSVTOCSVW_APP_PORT}", "--workers", "6","--proxy-headers"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info"]
-      interval: 10s
+      interval: 60s
       timeout: 10s
       retries: 20
     
