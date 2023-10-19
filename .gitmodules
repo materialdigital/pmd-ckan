@@ -4,3 +4,6 @@
 [submodule "ckan_plugins/ckanext-csvtocsvw"]
 	path = ckan_plugins/ckanext-csvtocsvw
 	url = git@github.com:Mat-O-Lab/ckanext-csvtocsvw.git
+[submodule "ckan_plugins/ckanext-csvwmapandtransform"]
+	path = ckan_plugins/ckanext-csvwmapandtransform
+	url = git@github.com:Mat-O-Lab/ckanext-csvwmapandtransform.git
