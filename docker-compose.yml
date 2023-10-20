@@ -30,7 +30,7 @@ services:
     container_name: ${CKAN_CONTAINER_NAME}
     build:
       context: ckan-docker/ckan/
-      dockerfile: Dockerfile.dev
+      dockerfile: ../../Dockerfile.dev
       #dockerfile: Dockerfile
       args:
         - TZ=${TZ}
