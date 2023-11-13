@@ -1,5 +1,6 @@
 __pycache__/
 ckan_plugins/
+tmp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -91,14 +91,65 @@ services:
       PORT: ${CSVTOCSVW_APP_PORT}
       #ADMIN_MAIL: ${ADMIN_MAIL}
     ports:
-      - 5001:${CSVTOCSVW_APP_PORT}
+      - ${CSVTOCSVW_APP_PORT}:${CSVTOCSVW_APP_PORT}
     restart: always
     # networks:
     #   - ckannet
-    entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CSVTOCSVW_APP_PORT}", "--workers", "6","--proxy-headers"]
+    entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CSVTOCSVW_APP_PORT}", "--workers", "1","--proxy-headers"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info"]
       interval: 60s
       timeout: 10s
       retries: 20
+  
+  maptomethod:
+      image: ghcr.io/mat-o-lab/maptomethod:latest
+      environment:
+        APP_NAME: "MapToMethod"
+        PORT: ${MAPTOMETHOD_APP_PORT}
+      container_name: ${MAPTOMETHOD_CONTAINER_NAME}
+      ports:
+        - ${MAPTOMETHOD_APP_PORT}:${MAPTOMETHOD_APP_PORT}
+      restart: always
+      entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1","--proxy-headers"]
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info"]
+
+  yarrrml-parser:
+    environment:
+      - PORT=${PARSER_PORT}
+    image: ghcr.io/mat-o-lab/yarrrml-parser:v.1.0.2
+    expose:
+      - ${PARSER_PORT}
+    restart: always
+
+  rmlmapper:
+    # changing port doesnt work - issue on rmlmapper side
+    environment:
+      - PORT=${MAPPER_PORT}
+    container_name: rmlmapper-webapi
+    image: ghcr.io/mat-o-lab/rmlmapper-webapi:latest
+    expose:
+      - ${MAPPER_PORT}
+    restart: always
+
+  rdfconverter:
+    environment:
+      PARSER_PORT: ${PARSER_PORT}
+      MAPPER_PORT: ${MAPPER_PORT}
+      CONVERTER_PORT: RDFCONVERTER_APP_PORT
+      APP_NAME: RDFConverter
+      APP_MODE: development
+    ports:
+      - ${RDFCONVERTER_APP_PORT}:${RDFCONVERTER_APP_PORT}
+    container_name: ${RDFCONVERTER_CONTAINER_NAME}
+    image: ghcr.io/mat-o-lab/rdfconverter:latest
+    restart: always
+    entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${RDFCONVERTER_APP_PORT}", "--workers", "1","--proxy-headers"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${RDFCONVERTER_APP_PORT}/info"]
+      interval: 60s
+      timeout: 10s
+      retries: 20
+
     

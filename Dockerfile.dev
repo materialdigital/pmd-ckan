@@ -46,6 +46,11 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
      pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvtocsvw/master/requirements.txt
 
+### CSVWMAPANDTRANSFORM
+RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform.git#egg=ckanext-csvwmapandtransform && \
+     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvwmapandtransform/master/requirements.txt
+
+
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
 
