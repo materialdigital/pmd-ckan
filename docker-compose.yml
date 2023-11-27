@@ -137,7 +137,9 @@ services:
     environment:
       PARSER_PORT: ${PARSER_PORT}
       MAPPER_PORT: ${MAPPER_PORT}
-      CONVERTER_PORT: RDFCONVERTER_APP_PORT
+      CONVERTER_PORT: ${RDFCONVERTER_APP_PORT}
+      YARRRML_URL: http://yarrrml-parser:${PARSER_PORT}
+      MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
       APP_NAME: RDFConverter
       APP_MODE: development
     ports:
