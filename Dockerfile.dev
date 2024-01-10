@@ -7,6 +7,10 @@ ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
 
+#replace prerun.py with
+COPY setup/prerun.py.override ${APP_DIR}/prerun.py
+
+
 # Make sure both files are not exactly the same
 RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
         cp /usr/share/zoneinfo/${TZ} /etc/localtime ;\
@@ -41,6 +45,9 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 ### DCAT ###
 #RUN  pip3 install -e git+https://github.com/ckan/ckanext-dcat.git@v0.0.6#egg=ckanext-dcat && \
 #     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/v0.0.6/requirements.txt
+
+### Visualize
+#RUN pip install ckanext-visualize
 
 ### CSVTOCSVS
 RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \

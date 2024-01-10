@@ -4,6 +4,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
+  jena_data:
 
 services:
 
@@ -83,6 +84,20 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "-e", "QUIT"]
 
+  fuseki:
+    build:
+     context: jena-docker/
+     dockerfile: Dockerfile
+    image: fuseki
+    expose: 
+      - "3030"
+    ports:
+      - "3030:3030"
+    volumes:
+      - ./logs:/fuseki/logs
+      - ./jena-docker/config.ttl:/fuseki/config.ttl
+      - jena_data:/fuseki/databases
+    command: "--conf /fuseki/config.ttl"
   csvtocsvw:
     image: "ghcr.io/mat-o-lab/csvtocsvw:latest"
     container_name: ${CSVTOCSVW_CONTAINER_NAME}
