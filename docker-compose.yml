@@ -31,7 +31,7 @@ services:
     container_name: ${CKAN_CONTAINER_NAME}
     build:
       context: ckan-docker/ckan/
-      dockerfile: ../../Dockerfile.dev
+      dockerfile: ../../Dockerfile
       #dockerfile: Dockerfile
       args:
         - TZ=${TZ}
@@ -44,10 +44,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      fuseki:
+        condition: service_healthy
     ports:
       - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}" 
     volumes:
       - ckan_storage:/var/lib/ckan
+      - ./02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
       - ./ckan.ini:/srv/app/ckan.ini
       - ./ckan_plugins:/srv/app/src_extensions
       - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
@@ -97,7 +100,9 @@ services:
       - ./logs:/fuseki/logs
       - ./jena-docker/config.ttl:/fuseki/config.ttl
       - jena_data:/fuseki/databases
-    command: "--conf /fuseki/config.ttl"
+    command: "--ping --debug --stats --conf /fuseki/config.ttl"
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
   csvtocsvw:
     image: "ghcr.io/mat-o-lab/csvtocsvw:latest"
     container_name: ${CSVTOCSVW_CONTAINER_NAME}

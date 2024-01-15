@@ -1,14 +1,10 @@
-FROM ckan/ckan-base:2.10.1-dev
+FROM ckan/ckan-dev:2.10.3
 #FROM ckan/ckan-base:2.9.9-dev
 
 
-# Set up environment variables
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
-
-#replace prerun.py with
-COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 
 
 # Make sure both files are not exactly the same
@@ -18,12 +14,13 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
-# - Also make sure all extra configuration options are added to the CKAN config file (ckan.ini)
-#   This can be done by creating an overriding start_ckan_dev_development.sh file:
-#   (https://github.com/ckan/ckan-docker-base/blob/main/ckan-2.9/dev/setup/start_ckan_development.sh) ie: updating the 'ckan config-tool' lines
-#   For more on config-tool please see https://docs.ckan.org/en/latest/maintaining/cli.html#config-tool-tool-for-editing-options-in-a-ckan-config-file
-#   or using Crudini (https://github.com/pixelb/crudini) 
+# - Also make sure all provide all extra configuration options, either by:
+#   * Adding them to the .env file (check the ckanext-envvars syntax for env vars), or
+#   * Adding extra configuration scripts to /docker-entrypoint.d folder) to update
+#      the CKAN config file (ckan.ini) with the `ckan config-tool` command
 #
+# See README > Extending the base images for more details
+
 # For instance:
 #
 ### XLoader ###
@@ -31,8 +28,8 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 #    pip3 install -r ${APP_DIR}/src/ckanext-xloader/requirements.txt && \
 #    pip3 install -U requests[security]
 
-### Harvester ###
-#RUN pip3 install -e 'git+https://github.com/ckan/ckanext-harvest.git@master#egg=ckanext-harvest' && \
+# ## Harvester ###
+# RUN pip3 install -e 'git+https://github.com/ckan/ckanext-harvest.git@master#egg=ckanext-harvest' && \
 #    pip3 install -r ${APP_DIR}/src/ckanext-harvest/pip-requirements.txt
 # will also require gather_consumer and fetch_consumer processes running (please see https://github.com/ckan/ckanext-harvest)
 
@@ -42,20 +39,32 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 ### Pages ###
 #RUN  pip3 install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
 
-### DCAT ###
-#RUN  pip3 install -e git+https://github.com/ckan/ckanext-dcat.git@v0.0.6#egg=ckanext-dcat && \
+# ## DCAT ###
+# RUN  pip3 install -e git+https://github.com/ckan/ckanext-dcat.git@v0.0.6#egg=ckanext-dcat && \
 #     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/v0.0.6/requirements.txt
 
-### Visualize
-#RUN pip install ckanext-visualize
-
-### CSVTOCSVS
-RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
+### CSVTOCSVW
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
      pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvtocsvw/master/requirements.txt
 
 ### CSVWMAPANDTRANSFORM
-RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform.git#egg=ckanext-csvwmapandtransform && \
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform.git#egg=ckanext-csvwmapandtransform && \
      pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvwmapandtransform/master/requirements.txt
+
+### HARVEST
+RUN pip3 install -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
+    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-harvest/master/requirements.txt
+
+### DCAT
+RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat  && \
+    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
+
+### DCATDE-AP
+RUN pip3 install -e git+https://github.com/GovDataOfficial/ckanext-dcatde.git#egg=ckanext-dcatde && \
+    pip3 install -r https://raw.githubusercontent.com/GovDataOfficial/ckanext-dcatde/master/base-requirements.txt
+
+### PDFView
+RUN pip3 install ckanext-pdfview
 
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
@@ -63,7 +72,11 @@ RUN  pip install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform
 
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
+# Copy custom initialization scripts
+COPY docker-entrypoint.d/* /docker-entrypoint.d/
 
+# Apply any patches needed to CKAN core or any of the built extensions (not the
+# runtime mounted ones)
 COPY patches ${APP_DIR}/patches
 
 RUN for d in $APP_DIR/patches/*; do \

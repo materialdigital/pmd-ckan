@@ -88,6 +88,10 @@ CKAN__HARVEST__MQ__HOSTNAME=redis
 CKAN__HARVEST__MQ__PORT=6379
 CKAN__HARVEST__MQ__REDIS_DB=1
 ```
+## all varaibles starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing __ with . and puting the name to lowercase
+examples:
+CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
+CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
 # Run flask app
 ```bash

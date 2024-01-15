@@ -8,6 +8,7 @@ PREFIX ja:      <http://jena.hpl.hp.com/2005/11/Assembler#>
 PREFIX tdb2:    <http://jena.apache.org/2016/tdb#>
 
 [] rdf:type fuseki:Server ;
+##   fuseki:allowedUsers    "*";
    fuseki:services (
      :service
    ) .
@@ -16,7 +17,7 @@ PREFIX tdb2:    <http://jena.apache.org/2016/tdb#>
 ## with a TDB2 dataset
 
 :service rdf:type fuseki:Service ;
-    fuseki:name "dataset" ;
+    fuseki:name "ds" ;
     fuseki:endpoint [ 
         fuseki:operation fuseki:query ;
         fuseki:name "sparql" ;
