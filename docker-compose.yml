@@ -51,7 +51,9 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
+      - ./03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./ckan.ini:/srv/app/ckan.ini
+      - ./dcatde_themes.json:/srv/app/dcatde_themes.json
       - ./ckan_plugins:/srv/app/src_extensions
       - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
       - ./logs:/var/log/ckan/
@@ -88,14 +90,13 @@ services:
       test: ["CMD", "redis-cli", "-e", "QUIT"]
 
   fuseki:
+    container_name: ${FUSEKI_CONTAINER_NAME}
     build:
      context: jena-docker/
      dockerfile: Dockerfile
     image: fuseki
-    expose: 
-      - "3030"
-    ports:
-      - "3030:3030"
+    expose:
+      - 3030
     volumes:
       - ./logs:/fuseki/logs
       - ./jena-docker/config.ttl:/fuseki/config.ttl
@@ -173,5 +174,12 @@ services:
       interval: 60s
       timeout: 10s
       retries: 20
+  sparklis:
+    container_name: ${SPARKLIS_CONTAINER_NAME}
+    expose:
+      - 8080
+    volumes:
+      - ./sparklis.html:/app/index.html
+    image: sferre/sparklis:latest
 
     

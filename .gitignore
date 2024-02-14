@@ -1,7 +1,7 @@
 __pycache__/
 ckan_plugins/
 tmp/
-
+ckan.ini
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
