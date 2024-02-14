@@ -52,7 +52,7 @@ services:
       - ckan_storage:/var/lib/ckan
       - ./02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
       - ./03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
-      - ./ckan.ini:/srv/app/ckan.ini
+      #- ./ckan.ini:/srv/app/ckan.ini
       - ./dcatde_themes.json:/srv/app/dcatde_themes.json
       - ./ckan_plugins:/srv/app/src_extensions
       - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
