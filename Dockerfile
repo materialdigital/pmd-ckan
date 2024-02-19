@@ -63,6 +63,10 @@ RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dca
 RUN pip3 install -e git+https://github.com/GovDataOfficial/ckanext-dcatde.git#egg=ckanext-dcatde && \
     pip3 install -r https://raw.githubusercontent.com/GovDataOfficial/ckanext-dcatde/master/base-requirements.txt
 
+### FUSEKI
+RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-fuseki.git#egg=ckanext-fuseki && \
+    pip3 install -r https://github.com/Mat-O-Lab/ckanext-fuseki/raw/master/requirements.txt
+
 ### PDFView
 RUN pip3 install ckanext-pdfview
 

@@ -44,8 +44,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      fuseki:
-        condition: service_healthy
+      # fuseki:
+      #   condition: service_healthy
     ports:
       - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}" 
     volumes:
@@ -57,6 +57,8 @@ services:
       - ./ckan_plugins:/srv/app/src_extensions
       - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
       - ./logs:/var/log/ckan/
+      # replace logo
+      - ./MatOLab-Logo.png:/srv/app/src/ckan/ckan/public/base/images/ckan-logo.png
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:${CKAN_PORT}"]
@@ -89,19 +91,35 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "-e", "QUIT"]
 
+  # fuseki:
+  #   container_name: ${FUSEKI_CONTAINER_NAME}
+  #   build:
+  #    context: jena-docker/
+  #    dockerfile: Dockerfile
+  #   image: fuseki
+  #   expose:
+  #     - 3030
+  #   volumes:
+  #     - ./logs:/fuseki/logs
+  #     - ./jena-docker/config.ttl:/fuseki/config.ttl
+  #     - jena_data:/fuseki/databases
+  #   command: "--ping --debug --stats --conf /fuseki/config.ttl"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
   fuseki:
     container_name: ${FUSEKI_CONTAINER_NAME}
-    build:
-     context: jena-docker/
-     dockerfile: Dockerfile
-    image: fuseki
-    expose:
-      - 3030
+    image: stain/jena-fuseki
+    ports:
+      - "3030:3030"
+    environment:
+      - JVM_ARGS=-Xmx10g
     volumes:
-      - ./logs:/fuseki/logs
+      - jena_data:/fuseki
+      - ./fuseki-staging:/staging
+      - ./jena-docker/shiro.ini:/fuseki/shiro.ini
       - ./jena-docker/config.ttl:/fuseki/config.ttl
-      - jena_data:/fuseki/databases
-    command: "--ping --debug --stats --conf /fuseki/config.ttl"
+      #- ./test-ds-in-mem.ttl:/fuseki/configuration/test-ds-in-mem.ttl
+      #- ./test-ds-reasoning.ttl:/fuseki/configuration/test-ds-reasoning.ttl
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
   csvtocsvw:
@@ -178,8 +196,8 @@ services:
     container_name: ${SPARKLIS_CONTAINER_NAME}
     expose:
       - 8080
-    volumes:
-      - ./sparklis.html:/app/index.html
+    # volumes:
+    #   - ./sparklis.html:/app/index.html
+    #   - ./sparklis.html:/app/osparklis.html
     image: sferre/sparklis:latest
 
-    
