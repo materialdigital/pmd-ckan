@@ -109,17 +109,20 @@ services:
   fuseki:
     container_name: ${FUSEKI_CONTAINER_NAME}
     image: stain/jena-fuseki
+    restart: unless-stopped
     ports:
       - "3030:3030"
     environment:
-      - JVM_ARGS=-Xmx10g
+      - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0
     volumes:
       - jena_data:/fuseki
       - ./fuseki-staging:/staging
       - ./jena-docker/shiro.ini:/fuseki/shiro.ini
       - ./jena-docker/config.ttl:/fuseki/config.ttl
+      - ./jena-docker/jetty.xml:/fuseki/jetty.xml
       #- ./test-ds-in-mem.ttl:/fuseki/configuration/test-ds-in-mem.ttl
       #- ./test-ds-reasoning.ttl:/fuseki/configuration/test-ds-reasoning.ttl
+    command: ["/jena-fuseki/fuseki-server", "--jetty-config=/fuseki/jetty.xml"]
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
   csvtocsvw:
