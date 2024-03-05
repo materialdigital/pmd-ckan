@@ -6,6 +6,7 @@ volumes:
   solr_data:
   jena_data:
 
+
 services:
 
   nginx:
@@ -13,26 +14,26 @@ services:
     env_file:
       - .env
     image: nginx:stable-alpine
-    #build:
-    #  context: ckan-docker/nginx/
-    #  dockerfile: Dockerfile
     depends_on:
       ckan:
+        condition: service_healthy
+      fuseki:
         condition: service_healthy
     ports:
       - "0.0.0.0:${NGINX_PORT_HOST}:${NGINX_PORT}"
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
     volumes:
-      - ./default.conf.template:/etc/nginx/templates/default.conf.template
-      - ./ckan-docker/nginx/setup/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+      # poins to default certs in ckan-docker repo - replace with ur ccertificates 
       - ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
       - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
+    networks:
+      - datastack_net
   ckan:
     container_name: ${CKAN_CONTAINER_NAME}
     build:
       context: ckan-docker/ckan/
-      dockerfile: ../../Dockerfile
-      #dockerfile: Dockerfile
+      dockerfile: ../../config/ckan/Dockerfile
       args:
         - TZ=${TZ}
     env_file:
@@ -44,25 +45,34 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      # fuseki:
-      #   condition: service_healthy
+      fuseki:
+        condition: service_healthy
     ports:
-      - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}" 
+      - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}"
     volumes:
       - ckan_storage:/var/lib/ckan
-      - ./02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
-      - ./03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
-      #- ./ckan.ini:/srv/app/ckan.ini
-      - ./dcatde_themes.json:/srv/app/dcatde_themes.json
+      - ./config/ckan/02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
+      - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
+      - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
+      # only for development
       - ./ckan_plugins:/srv/app/src_extensions
-      - ./supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
+      # config for the background supervisor jobs
+      - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
       - ./logs:/var/log/ckan/
       # replace logo
-      - ./MatOLab-Logo.png:/srv/app/src/ckan/ckan/public/base/images/ckan-logo.png
+      - ./config/logo.png:/srv/app/src/ckan/ckan/public/base/images/ckan-logo.png
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:${CKAN_PORT}"]
-    
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO",
+          "/dev/null",
+          "http://localhost:${CKAN_PORT}"
+        ]
+    networks:
+      - datastack_net
   db:
     container_name: ${POSTGRESQL_CONTAINER_NAME}
     build:
@@ -73,8 +83,17 @@ services:
       - pg_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
-
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER}",
+          "-d",
+          "${POSTGRES_DB}"
+        ]
+    networks:
+      - datastack_net
   solr:
     container_name: ${SOLR_CONTAINER_NAME}
     image: ckan/ckan-solr:${SOLR_IMAGE_VERSION}
@@ -82,30 +101,24 @@ services:
       - solr_data:/var/solr
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/"]
-
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO",
+          "/dev/null",
+          "http://localhost:8983/solr/"
+        ]
+    networks:
+      - datastack_net
   redis:
     container_name: ${REDIS_CONTAINER_NAME}
     image: redis:${REDIS_VERSION}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "-e", "QUIT"]
-
-  # fuseki:
-  #   container_name: ${FUSEKI_CONTAINER_NAME}
-  #   build:
-  #    context: jena-docker/
-  #    dockerfile: Dockerfile
-  #   image: fuseki
-  #   expose:
-  #     - 3030
-  #   volumes:
-  #     - ./logs:/fuseki/logs
-  #     - ./jena-docker/config.ttl:/fuseki/config.ttl
-  #     - jena_data:/fuseki/databases
-  #   command: "--ping --debug --stats --conf /fuseki/config.ttl"
-  #   healthcheck:
-  #     test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
+      test: [ "CMD", "redis-cli", "-e", "QUIT" ]
+    networks:
+      - datastack_net
   fuseki:
     container_name: ${FUSEKI_CONTAINER_NAME}
     image: stain/jena-fuseki
@@ -116,15 +129,25 @@ services:
       - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0
     volumes:
       - jena_data:/fuseki
-      - ./fuseki-staging:/staging
-      - ./jena-docker/shiro.ini:/fuseki/shiro.ini
-      - ./jena-docker/config.ttl:/fuseki/config.ttl
-      - ./jena-docker/jetty.xml:/fuseki/jetty.xml
-      #- ./test-ds-in-mem.ttl:/fuseki/configuration/test-ds-in-mem.ttl
-      #- ./test-ds-reasoning.ttl:/fuseki/configuration/test-ds-reasoning.ttl
-    command: ["/jena-fuseki/fuseki-server", "--jetty-config=/fuseki/jetty.xml"]
+      - ./config/fuseki/shiro.ini:/fuseki/shiro.ini
+      - ./config/fuseki/config.ttl:/fuseki/config.ttl
+      - ./config/fuseki/jetty.xml:/fuseki/jetty.xml
+    command:
+      [
+        "/jena-fuseki/fuseki-server",
+        "--jetty-config=/fuseki/jetty.xml"
+      ]
     healthcheck:
-      test: ["CMD", "wget", "-qO", "/dev/null", 'http://localhost:3030/$$/ping']
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO",
+          "/dev/null",
+          'http://localhost:3030/$$/ping'
+        ]
+    networks:
+      - datastack_net
   csvtocsvw:
     image: "ghcr.io/mat-o-lab/csvtocsvw:latest"
     container_name: ${CSVTOCSVW_CONTAINER_NAME}
@@ -137,26 +160,62 @@ services:
     restart: always
     # networks:
     #   - ckannet
-    entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CSVTOCSVW_APP_PORT}", "--workers", "1","--proxy-headers"]
+    entrypoint:
+      [
+        "uvicorn",
+        "app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "${CSVTOCSVW_APP_PORT}",
+        "--workers",
+        "1",
+        "--proxy-headers"
+      ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${CSVTOCSVW_APP_PORT}/info"
+        ]
       interval: 60s
       timeout: 10s
       retries: 20
-  
+    networks:
+      - datastack_net
   maptomethod:
-      image: ghcr.io/mat-o-lab/maptomethod:latest
-      environment:
-        APP_NAME: "MapToMethod"
-        PORT: ${MAPTOMETHOD_APP_PORT}
-      container_name: ${MAPTOMETHOD_CONTAINER_NAME}
-      ports:
-        - ${MAPTOMETHOD_APP_PORT}:${MAPTOMETHOD_APP_PORT}
-      restart: always
-      entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1","--proxy-headers"]
-      healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info"]
-
+    image: ghcr.io/mat-o-lab/maptomethod:latest
+    environment:
+      APP_NAME: "MapToMethod"
+      PORT: ${MAPTOMETHOD_APP_PORT}
+    container_name: ${MAPTOMETHOD_CONTAINER_NAME}
+    ports:
+      - ${MAPTOMETHOD_APP_PORT}:${MAPTOMETHOD_APP_PORT}
+    restart: always
+    entrypoint:
+      [
+        "uvicorn",
+        "app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "${MAPTOMETHOD_APP_PORT}",
+        "--workers",
+        "1",
+        "--proxy-headers"
+      ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${MAPTOMETHOD_APP_PORT}/info"
+        ]
+    networks:
+      - datastack_net
   yarrrml-parser:
     environment:
       - PORT=${PARSER_PORT}
@@ -164,7 +223,8 @@ services:
     expose:
       - ${PARSER_PORT}
     restart: always
-
+    networks:
+      - datastack_net
   rmlmapper:
     # changing port doesnt work - issue on rmlmapper side
     environment:
@@ -174,7 +234,8 @@ services:
     expose:
       - ${MAPPER_PORT}
     restart: always
-
+    networks:
+      - datastack_net
   rdfconverter:
     environment:
       PARSER_PORT: ${PARSER_PORT}
@@ -189,18 +250,37 @@ services:
     container_name: ${RDFCONVERTER_CONTAINER_NAME}
     image: ghcr.io/mat-o-lab/rdfconverter:latest
     restart: always
-    entrypoint: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${RDFCONVERTER_APP_PORT}", "--workers", "1","--proxy-headers"]
+    entrypoint:
+      [
+        "uvicorn",
+        "app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "${RDFCONVERTER_APP_PORT}",
+        "--workers",
+        "1",
+        "--proxy-headers"
+      ]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${RDFCONVERTER_APP_PORT}/info"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${RDFCONVERTER_APP_PORT}/info"
+        ]
       interval: 60s
       timeout: 10s
       retries: 20
+    networks:
+      - datastack_net
   sparklis:
     container_name: ${SPARKLIS_CONTAINER_NAME}
     expose:
       - 8080
-    # volumes:
-    #   - ./sparklis.html:/app/index.html
-    #   - ./sparklis.html:/app/osparklis.html
     image: sferre/sparklis:latest
-
+    networks:
+      - datastack_net
+networks:
+  datastack_net:
