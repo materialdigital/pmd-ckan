@@ -24,7 +24,7 @@ services:
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
     volumes:
       - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
-      # poins to default certs in ckan-docker repo - replace with ur ccertificates 
+      - ./ckan-docker/nginx/setup/nginx.conf:/etc/nginx/nginx.conf
       - ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
       - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
     networks:
