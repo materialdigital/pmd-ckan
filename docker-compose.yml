@@ -139,14 +139,6 @@ services:
       ]
     stop_grace_period: 10s
     healthcheck:
-      # test:
-      #   [
-      #     "CMD",
-      #     "wget",
-      #     "-qO",
-      #     "/dev/null",
-      #     'http://localhost:3030/$$/ping'
-      #   ]
       test:
         - "CMD-SHELL"
         - "wget -qO /dev/null http://localhost:3030/$$/ping"
