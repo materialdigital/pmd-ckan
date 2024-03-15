@@ -137,15 +137,23 @@ services:
         "/jena-fuseki/fuseki-server",
         "--jetty-config=/fuseki/jetty.xml"
       ]
+    stop_grace_period: 10s
     healthcheck:
+      # test:
+      #   [
+      #     "CMD",
+      #     "wget",
+      #     "-qO",
+      #     "/dev/null",
+      #     'http://localhost:3030/$$/ping'
+      #   ]
       test:
-        [
-          "CMD",
-          "wget",
-          "-qO",
-          "/dev/null",
-          'http://localhost:3030/$$/ping'
-        ]
+        - "CMD-SHELL"
+        - "wget -qO /dev/null http://localhost:3030/$$/ping"
+        - "test ! -f /system/tdb.lock"
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - datastack_net
   csvtocsvw:

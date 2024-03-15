@@ -1,5 +1,6 @@
-#FROM ckan/ckan-dev:2.10.3
-FROM ckan/ckan-dev:master
+FROM ckan/ckan-dev:2.10.3
+#FROM ckan/ckan-dev:master
+#FROM ckan/ckan-dev:2.9
 #FROM ckan/ckan-base:2.9.9-dev
 
 
