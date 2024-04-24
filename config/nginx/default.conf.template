@@ -1,0 +1,60 @@
+server {
+    listen       ${NGINX_PORT};
+    listen  [::]:${NGINX_PORT};
+    listen       ${NGINX_SSLPORT} ssl;
+    listen  [::]:${NGINX_SSLPORT} ssl;
+    server_name  localhost;
+    ssl_certificate /etc/nginx/certs/ckan-local.crt;
+    ssl_certificate_key /etc/nginx/certs/ckan-local.key;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+    
+    location /fuseki/{
+        proxy_pass http://${FUSEKI_CONTAINER_NAME}:${FUSEKI_PORT}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        client_max_body_size 20M;
+        proxy_cache                 cache;
+        add_header X-Proxy-Cache    $upstream_cache_status;
+        proxy_ignore_headers        Cache-Control;
+        proxy_cache_valid any       2m;
+        proxy_cache_use_stale       error timeout http_500 http_502 http_503 http_504;
+
+    }
+
+    location /sparklis/ {
+        proxy_pass http://${SPARKLIS_CONTAINER_NAME}:${SPARKLIS_PORT}/;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+    }
+
+    location / {
+        proxy_pass ${CKAN_PROXY_PASS};
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_cache cache;
+        proxy_cache_bypass $cookie_auth_tkt;
+        proxy_no_cache $cookie_auth_tkt;
+        proxy_cache_valid 30m;
+        proxy_cache_key $host$scheme$proxy_host$request_uri;
+        proxy_connect_timeout 1000;
+        proxy_send_timeout 1000;
+        proxy_read_timeout 1000;
+        send_timeout 1000;
+        client_max_body_size 50M;
+        
+    }
+    
+
+
+    error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}
