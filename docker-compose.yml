@@ -17,8 +17,8 @@ services:
     depends_on:
       ckan:
         condition: service_healthy
-      fuseki:
-        condition: service_healthy
+      # fuseki:
+      #   condition: service_healthy
     ports:
       - "0.0.0.0:${NGINX_PORT_HOST}:${NGINX_PORT}"
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
@@ -45,8 +45,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      fuseki:
-        condition: service_healthy
+      # fuseki:
+      #   condition: service_healthy
     ports:
       - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}"
     volumes:
@@ -146,6 +146,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    labels:
+      - "autoheal=true"
     networks:
       - datastack_net
   csvtocsvw:
@@ -282,5 +284,14 @@ services:
     image: sferre/sparklis:latest
     networks:
       - datastack_net
+  autoheal:
+    image: willfarrell/autoheal:latest
+    tty: true
+    container_name: autoheal
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 networks:
   datastack_net:
