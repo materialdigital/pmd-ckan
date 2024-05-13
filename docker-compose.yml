@@ -47,8 +47,8 @@ services:
         condition: service_healthy
       # fuseki:
       #   condition: service_healthy
-    ports:
-      - "0.0.0.0:${CKAN_PORT_HOST}:${CKAN_PORT}"
+    expose:
+      - "${CKAN_PORT}"
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./config/ckan/02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
@@ -123,10 +123,10 @@ services:
     container_name: ${FUSEKI_CONTAINER_NAME}
     image: stain/jena-fuseki
     restart: unless-stopped
-    ports:
-      - "3030:3030"
+    expose:
+      - "3030"
     environment:
-      - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0
+      - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0 -Dhttp.proxyHost=docker-dev.iwm.fraunhofer.de -Dhttp.proxyPort=80
     volumes:
       - jena_data:/fuseki
       - ./config/fuseki/shiro.ini:/fuseki/shiro.ini
@@ -157,8 +157,8 @@ services:
       APP_MODE: "production"
       PORT: ${CSVTOCSVW_APP_PORT}
       #ADMIN_MAIL: ${ADMIN_MAIL}
-    ports:
-      - ${CSVTOCSVW_APP_PORT}:${CSVTOCSVW_APP_PORT}
+    expose:
+      - ${CSVTOCSVW_APP_PORT}
     restart: always
     # networks:
     #   - ckannet
@@ -193,8 +193,8 @@ services:
       APP_NAME: "MapToMethod"
       PORT: ${MAPTOMETHOD_APP_PORT}
     container_name: ${MAPTOMETHOD_CONTAINER_NAME}
-    ports:
-      - ${MAPTOMETHOD_APP_PORT}:${MAPTOMETHOD_APP_PORT}
+    expose:
+      - ${MAPTOMETHOD_APP_PORT}
     restart: always
     entrypoint:
       [
@@ -247,8 +247,8 @@ services:
       MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
       APP_NAME: RDFConverter
       APP_MODE: development
-    ports:
-      - ${RDFCONVERTER_APP_PORT}:${RDFCONVERTER_APP_PORT}
+    expose:
+      - ${RDFCONVERTER_APP_PORT}
     container_name: ${RDFCONVERTER_CONTAINER_NAME}
     image: ghcr.io/mat-o-lab/rdfconverter:latest
     restart: always
