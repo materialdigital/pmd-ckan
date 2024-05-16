@@ -6,10 +6,12 @@ server {
     server_name  localhost;
     ssl_certificate /etc/nginx/certs/ckan-local.crt;
     ssl_certificate_key /etc/nginx/certs/ckan-local.key;
-
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
 
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 
     location /static/ {
         rewrite ^/static/(.*)$ /fuseki/static/$1 last;
