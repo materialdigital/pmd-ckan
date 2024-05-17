@@ -1,34 +1,51 @@
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
+    server_name _; # match any server name
+    # Redirect all non-HTTPS traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
     listen       ${NGINX_SSLPORT} ssl;
     listen  [::]:${NGINX_SSLPORT} ssl;
-    server_name  localhost;
+    server_name  ${CKAN_HOST};
     ssl_certificate /etc/nginx/certs/ckan-local.crt;
     ssl_certificate_key /etc/nginx/certs/ckan-local.key;
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
+	
+    ssl_session_cache shared:ssl_session_cache:10m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+ 
+    # HSTS 
+    add_header Strict-Transport-Security "max-age=63072000" always;
+ 
+    # OCSP stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    
+    server_tokens off;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
 
-    location /static/ {
-        rewrite ^/static/(.*)$ /fuseki/static/$1 last;
+    location @fuseki_static {
+        proxy_pass http://${FUSEKI_CONTAINER_NAME}:${FUSEKI_PORT};
     }
 
     location /fuseki/{
         proxy_pass http://${FUSEKI_CONTAINER_NAME}:${FUSEKI_PORT}/;
         proxy_redirect http://${FUSEKI_CONTAINER_NAME}:${FUSEKI_PORT}/ /fuseki/;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        client_max_body_size 20M;
-        proxy_cache                 cache;
-        add_header X-Proxy-Cache    $upstream_cache_status;
-        proxy_ignore_headers        Cache-Control;
-        proxy_cache_valid any       2m;
-        proxy_cache_use_stale       error timeout http_500 http_502 http_503 http_504;
+        proxy_http_version  1.1;
+        proxy_set_header    Upgrade             $http_upgrade;
+        proxy_set_header    Host                $host;
+        proxy_set_header    X-Real-IP           $remote_addr;
+        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        client_max_body_size 200M;
     }
 
     location /sparklis/ {
@@ -51,7 +68,11 @@ server {
         proxy_send_timeout 1000;
         proxy_read_timeout 1000;
         send_timeout 1000;
-        client_max_body_size 50M;
+        client_max_body_size 200M;
+    }
+
+    location /static/ {
+        try_files $uri $uri/ @fuseki_static;
     }
     
 
