@@ -59,8 +59,6 @@ services:
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
       - ./logs:/var/log/ckan/
-      # replace logo
-      - ./config/logo.png:/srv/app/src/ckan/ckan/public/base/images/ckan-logo.png
     restart: unless-stopped
     healthcheck:
       test:
