@@ -1,14 +1,14 @@
 # PMD-CKAN
 
-This composition of applications provides a solution for hosting material science data for projects in the material digital initiative to paticipate in a decentralized linked data space with a central data portal instance. It also features ontology agnostic transformation pipelin and a triple store integration.
+This composition of applications provides a solution for hosting material science data for projects in the material digital initiative to participate in a decentralized linked data space with a central data portal instance. It also features an ontology agnostic transformation pipeline and a triple store integration.
 
 ## Features
 
-- Central Component is a [CKAN](https://ckan.org/) instance as data mangement system, with default views for pdf, images, text, csv, html, markdown.
+- Central Component is a [CKAN](https://ckan.org/) instance as data management system, with default views for pdf, images, text, csv, html, markdown.
 - A [apche jena fuseki](https://jena.apache.org/documentation/fuseki2/) triple store at a sublocation /fuseki
-- A plugin to create accompaniing named graphs in jena fuseki for sematic data contained in ckan datasets including sparql endpint publication and a user friendly sparql query interface known as [sparklis](https://github.com/sebferre/sparklis)
+- A plugin to create accompanying named graphs in jena fuseki for semantic data contained in ckan datasets including sparql endpoint publication and a user-friendly sparql query interface known as [sparklis](https://github.com/sebferre/sparklis)
 - a pipeline for transforming complex csv data common in the domain to [csvw metadata](https://www.w3.org/ns/csvw)
-- A rule based mapping pipeline to combine rdf containing data with knowledge graphs to represent material data,its measurement routine and the processing. A tutorial and the steps involved can be found [here](https://github.com/Mat-O-Lab/IOFMaterialsTutorial).
+- A rule based mapping pipeline to combine rdf containing data with knowledge graphs to represent material data, its measurement routine and the processing. A tutorial and the steps involved can be found [here](https://github.com/Mat-O-Lab/IOFMaterialsTutorial).
 
 ## Prerequisites
 
@@ -29,26 +29,26 @@ Before you begin, make sure you have the following installed:
     cd ckan-docker-compose
     ```
 
-3. create a .env file, use (example.env)[config/example.env] as template
+3. create a .env file, use (example.env)[config/example.env] as a template
 
-    **all varaibles starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing __ with . and puting the name to lowercase**
+    **all variables starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing "__" with "."  and putting the name to lowercase**
     examples:
     CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
     CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
 5. replace all values in <> braces
 6. change the admin user and passwd of the fuseki instance by changing the line admin=admin
-7. make changes accourding to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
-8. replace line admin=admin in **[config/fuseki/shiro.ini](config/fuseki/shiro.ini)** by the values you set in your .env for **CKANINI__CKANEXT__FUSEKI__USERNAME** and **CKANINI__CKANEXT__FUSEKI__PASSWORD**
-9. Run the docker compose stack, it wil pull and build the neccessary containers
+7. make changes according to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
+8. replace the line admin=admin in **[config/fuseki/shiro.ini](config/fuseki/shiro.ini)** by the values you set in your .env for **CKANINI__CKANEXT__FUSEKI__USERNAME** and **CKANINI__CKANEXT__FUSEKI__PASSWORD**
+9. Run the docker compose stack, it will pull and build the necessary containers
     ```bash
     docker-compose up
     ```
-10. After first seccessful startup login into ckan with the admin password you defined in your .env
+10. After first successful startup, login into ckan with the admin password you defined in your .env
 
-11. **create a api token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+11. **create an API token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
 
-12. restart the dockercompose stack in detached mode
+12. restart the docker compose stack in detached mode
     ```bash
     docker-compose down
     docker-compose up -d
