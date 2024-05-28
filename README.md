@@ -20,35 +20,38 @@ Before you begin, make sure you have the following installed:
 ## Installation
 
 1. Clone this repository to your local machine:
-```bash
-git clone https://github.com/materialdigital/pmd-ckan.git
-```
+    ```bash
+    git clone https://github.com/materialdigital/pmd-ckan.git
+    ```
 
 2. Navigate to the pmd-ckan directory:
-```bash
-cd ckan-docker-compose
-```
+    ```bash
+    cd ckan-docker-compose
+    ```
 
 3. create a .env file, use (example.env)[config/example.env] as template
-**all varaibles starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing __ with . and puting the name to lowercase**
-examples:
-CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
-CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
-4. replace all values in <> braces
+    **all varaibles starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing __ with . and puting the name to lowercase**
+    examples:
+    CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
+    CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
-5. Run the docker compose stack, it wil pull and build the neccessary containers
-```bash
-docker-compose up
-```
-6. After first seccessful startup login into ckan with the admin password u defined in your .env
+5. replace all values in <> braces
 
-7. create a api token for the supervisor background tasks at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
-8. restart the dockercompose stack in detached mode
-```bash
-docker-compose down
-docker-compose up -d
-```
+6. Run the docker compose stack, it wil pull and build the neccessary containers
+    ```bash
+    docker-compose up
+    ```
+7. After first seccessful startup login into ckan with the admin password u defined in your .env
+
+8. create a api token for the supervisor background tasks at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+
+9. restart the dockercompose stack in detached mode
+    ```bash
+    docker-compose down
+    docker-compose up -d
+    ```
+
 ---
 # Acknowledgments
 The authors would like to thank the Federal Government and the Heads of Government of the Länder for their funding and support within the framework of the [Platform Material Digital](https://www.materialdigital.de) consortium. Funded by the German [Federal Ministry of Education and Research (BMBF)](https://www.bmbf.de/bmbf/en/) through the [MaterialDigital](https://www.bmbf.de/SharedDocs/Publikationen/de/bmbf/5/31701_MaterialDigital.pdf?__blob=publicationFile&v=5) Call in Project [KupferDigital](https://www.materialdigital.de/project/1) - project id 13XP5119.
