@@ -37,16 +37,18 @@ Before you begin, make sure you have the following installed:
     CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
 5. replace all values in <> braces
-
-6. Run the docker compose stack, it wil pull and build the neccessary containers
+6. change the admin user and passwd of the fuseki instance by changing the line admin=admin
+7. make changes accourding to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
+8. replace line admin=admin in **[config/fuseki/shiro.ini](config/fuseki/shiro.ini)** by the values you set in your .env for **CKANINI__CKANEXT__FUSEKI__USERNAME** and **CKANINI__CKANEXT__FUSEKI__PASSWORD**
+9. Run the docker compose stack, it wil pull and build the neccessary containers
     ```bash
     docker-compose up
     ```
-7. After first seccessful startup login into ckan with the admin password u defined in your .env
+10. After first seccessful startup login into ckan with the admin password you defined in your .env
 
-8. create a api token for the supervisor background tasks at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+11. **create a api token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
 
-9. restart the dockercompose stack in detached mode
+12. restart the dockercompose stack in detached mode
     ```bash
     docker-compose down
     docker-compose up -d
