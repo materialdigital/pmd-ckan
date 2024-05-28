@@ -1,8 +1,4 @@
 FROM ckan/ckan-dev:2.10.3
-#FROM ckan/ckan-dev:master
-#FROM ckan/ckan-dev:2.9
-#FROM ckan/ckan-base:2.9.9-dev
-
 
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
@@ -25,22 +21,6 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 
 # For instance:
 #
-### XLoader ###
-#RUN pip3 install -e 'git+https://github.com/ckan/ckanext-xloader.git@master#egg=ckanext-xloader' && \ 
-#    pip3 install -r ${APP_DIR}/src/ckanext-xloader/requirements.txt && \
-#    pip3 install -U requests[security]
-
-# ## Harvester ###
-# RUN pip3 install -e 'git+https://github.com/ckan/ckanext-harvest.git@master#egg=ckanext-harvest' && \
-#    pip3 install -r ${APP_DIR}/src/ckanext-harvest/pip-requirements.txt
-# will also require gather_consumer and fetch_consumer processes running (please see https://github.com/ckan/ckanext-harvest)
-
-### Scheming ###
-#RUN  pip3 install -e 'git+https://github.com/ckan/ckanext-scheming.git@master#egg=ckanext-scheming'
-
-### Pages ###
-#RUN  pip3 install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
-
 ### CSVTOCSVW
 RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvtocsvw/master/requirements.txt
@@ -83,11 +63,6 @@ RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git#eg
 # ### AIEXTRACT
 # RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/vp005/ckanext-aiextract.git#egg=ckanext-aiextract && \
 #     pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/vp005/ckanext-aiextract/-/raw/main/requirements.txt
-
-
-# ### Multiuploader
-# RUN pip3 install ckanext-multiuploader
-
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
