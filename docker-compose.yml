@@ -31,7 +31,7 @@ services:
       #- /etc/ssl/certs/kit-pmd-4.ydns.eu.key:/etc/nginx/certs/ckan-local.key
       - ./config/certbot/conf/live/kit-pmd-4.ydns.eu/fullchain.pem:/etc/nginx/certs/ckan-local.crt
       - ./config/certbot/conf/live/kit-pmd-4.ydns.eu/privkey.pem:/etc/nginx/certs/ckan-local.key
-      - ./data/certbot/www:/var/www/certbot
+      - ./config/certbot/www:/var/www/certbot
     networks:
       - datastack_net
     healthcheck:

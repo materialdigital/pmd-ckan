@@ -2,8 +2,18 @@ server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
     server_name _; # match any server name
+    
     # Redirect all non-HTTPS traffic to HTTPS
-    return 301 https://$host$request_uri;
+    location / {
+        return 301 https://$host$request_uri;
+    }
+
+    # Add certbot location
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+
 }
 
 server {
@@ -28,10 +38,6 @@ server {
     ssl_stapling_verify on;
     
     server_tokens off;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
 
     location @fuseki_static {
         proxy_pass http://${FUSEKI_CONTAINER_NAME}:${FUSEKI_PORT};
