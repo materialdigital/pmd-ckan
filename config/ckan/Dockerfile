@@ -1,18 +1,26 @@
-FROM ckan/ckan-dev:2.10.3
-#FROM ckan/ckan-dev:master
-#FROM ckan/ckan-dev:2.9
-#FROM ckan/ckan-base:2.9.9-dev
+FROM ckan/ckan-dev:2.11.0
 
 
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
 
-
 # Make sure both files are not exactly the same
 RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
     cp /usr/share/zoneinfo/${TZ} /etc/localtime ;\
     fi ;
+
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+
+RUN buildDeps='locales' \
+    && set -x \
+    && apt-get update && apt-get install -y $buildDeps --no-install-recommends \
+    && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
+    && sed -i 's/^# de_DE.UTF-8 UTF-8$/de_DE.UTF-8 UTF-8/g' /etc/locale.gen \
+    && locale-gen en_US.UTF-8 de_DE.UTF-8
+
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
@@ -23,23 +31,9 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 #
 # See README > Extending the base images for more details
 
-# For instance:
-#
-### XLoader ###
-#RUN pip3 install -e 'git+https://github.com/ckan/ckanext-xloader.git@master#egg=ckanext-xloader' && \ 
-#    pip3 install -r ${APP_DIR}/src/ckanext-xloader/requirements.txt && \
-#    pip3 install -U requests[security]
-
-# ## Harvester ###
-# RUN pip3 install -e 'git+https://github.com/ckan/ckanext-harvest.git@master#egg=ckanext-harvest' && \
-#    pip3 install -r ${APP_DIR}/src/ckanext-harvest/pip-requirements.txt
-# will also require gather_consumer and fetch_consumer processes running (please see https://github.com/ckan/ckanext-harvest)
-
-### Scheming ###
-#RUN  pip3 install -e 'git+https://github.com/ckan/ckanext-scheming.git@master#egg=ckanext-scheming'
-
-### Pages ###
-#RUN  pip3 install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
+### EXCELFORMS
+RUN  pip3 install -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \
+    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-excelforms/main/requirements.txt
 
 ### CSVTOCSVW
 RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
@@ -48,6 +42,9 @@ RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=
 ### CSVWMAPANDTRANSFORM
 RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform.git#egg=ckanext-csvwmapandtransform && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvwmapandtransform/master/requirements.txt
+
+### SCHEMING
+RUN pip3 install git+https://github.com/ckan/ckanext-scheming.git@27035f4d5b3722c2bc64d39b6c2b1d76c9883636
 
 ### HARVEST
 RUN pip3 install -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
@@ -59,6 +56,8 @@ RUN pip3 install -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-
 
 #Should be installed by the previous
 ### DCAT
+#ckanext-scheming is needed with dcat
+RUN pip3 install -e git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming
 RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat  && \
     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
 
@@ -69,9 +68,6 @@ RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-fuseki.git#egg=ckan
 ### PDFView
 RUN pip3 install ckanext-pdfview
 
-### ZipPreview
-RUN pip3 install -e git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview
-
 ### Markdown View
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#egg=ckanext-markdown_view && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-markdown_view/main/requirements.txt
@@ -80,13 +76,17 @@ RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#e
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git#egg=ckanext-matolabtheme && \
     pip3 install -r https://github.com/Mat-O-Lab/ckanext-matolabtheme/raw/main/requirements.txt
 
-# ### AIEXTRACT
-# RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/vp005/ckanext-aiextract.git#egg=ckanext-aiextract && \
-#     pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/vp005/ckanext-aiextract/-/raw/main/requirements.txt
+## AIEXTRACT
+RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract.git#egg=ckanext-aiextract && \
+    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract/-/raw/main/requirements.txt
 
+### Multiuploader
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
+#RUN pip3 install ckanext-multiuploader
 
-# ### Multiuploader
-# RUN pip3 install ckanext-multiuploader
+### SSO
+RUN pip3 install -e git+https://github.com/dathere/ckanext-sso.git#egg=ckanext-sso && \
+    pip3 install -r https://raw.githubusercontent.com/dathere/ckanext-sso/dev/requirements.txt
 
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
