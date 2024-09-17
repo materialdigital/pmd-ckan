@@ -1,6 +1,5 @@
 # DataStack
-
-This composition of applications provides a solution for hosting material science data as open linked data. It also features an ontology agnostic transformation pipeline and a triple store integration.
+This composition of applications provides a solution for hosting and transforming data into semantic data. It also might be used in a decentralized linked data space with a central data portal instance. It also features a triple store integration.
 
 ## Features
 
@@ -21,7 +20,7 @@ Before you begin, make sure you have the following installed:
 
 1. Clone this repository to your local machine:
     ```bash
-    git clone https://github.com/Mat-O-Lab/DataStack.git
+    git clone https://github.com/materialdigital/pmd-ckan.git
     ```
 
 2. Navigate to the pmd-ckan directory:
@@ -36,19 +35,17 @@ Before you begin, make sure you have the following installed:
     CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
     CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
-5. replace all values in <> braces
-6. change the admin user and passwd of the fuseki instance by changing the line admin=admin
-7. make changes according to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
-8. replace the line admin=admin in **[config/fuseki/shiro.ini](config/fuseki/shiro.ini)** by the values you set in your .env for **CKANINI__CKANEXT__FUSEKI__USERNAME** and **CKANINI__CKANEXT__FUSEKI__PASSWORD**
-9. Run the docker compose stack, it will pull and build the necessary containers
+4. replace all values in <> braces or are comented to be changed
+5. make changes according to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
+6. Run the docker compose stack, it will pull and build the necessary containers
     ```bash
     docker-compose up
     ```
-10. After first successful startup, login into ckan with the admin password you defined in your .env
+7. After first successful startup, login into ckan with the admin password you defined in your .env
 
-11. **create an API token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+8. **create an API token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
 
-12. restart the docker compose stack in detached mode
+9. restart the docker compose stack in detached mode
     ```bash
     docker-compose down
     docker-compose up -d
