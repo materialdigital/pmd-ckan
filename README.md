@@ -19,9 +19,10 @@ Before you begin, make sure you have the following installed:
 
 ## Installation
 
-1. Clone this repository to your local machine:
+1. Clone this repository to your local machine and init submoduls:
     ```bash
     git clone https://github.com/materialdigital/pmd-ckan.git
+    git submodule update --init
     ```
 
 2. Navigate to the pmd-ckan directory:
