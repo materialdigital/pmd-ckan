@@ -2,7 +2,7 @@
 
 temp_ini="options.ini"
 
-function configure_ckan_datapusher {
+function add_to_config_ini {
   touch $temp_ini
   for var in $(env | grep "^CKANINI" | cut -d= -f1); do
     variable_name=$(echo "${var#CKANINI__}" | tr '[:upper:]' '[:lower:]' | sed 's/__/\./g')
@@ -14,4 +14,4 @@ function configure_ckan_datapusher {
   rm $temp_ini
 }
 
-configure_ckan_datapusher
+add_to_config_ini
