@@ -5,6 +5,7 @@ server {
     listen       ${NGINX_SSLPORT} ssl;
     listen  [::]:${NGINX_SSLPORT} ssl;
     server_name  ${CKAN_HOST};
+    chunked_transfer_encoding off;
 
     ssl_certificate /etc/nginx/certs/ckan-local.crt;
     ssl_certificate_key /etc/nginx/certs/ckan-local.key;
@@ -34,11 +35,22 @@ server {
         proxy_set_header Host $host;
     }
 
+    location /maptomethod/ {
+        proxy_pass http://maptomethod:${MAPTOMETHOD_APP_PORT}/;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    location @maptomethod {
+        proxy_pass http://maptomethod:${MAPTOMETHOD_APP_PORT};
+    }
+
     location / {
         proxy_pass ${CKAN_PROXY_PASS};
         proxy_redirect ${CKAN_PROXY_PASS} /;
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
         #proxy_cache cache;
         #proxy_cache_bypass $cookie_auth_tkt;
         #proxy_no_cache $cookie_auth_tkt;
