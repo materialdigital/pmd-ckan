@@ -1,4 +1,3 @@
-
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
@@ -12,7 +11,7 @@ server {
 
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
-
+    
     location /fuseki/{
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
@@ -41,9 +40,6 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-    location @maptomethod {
-        proxy_pass http://maptomethod:${MAPTOMETHOD_APP_PORT};
-    }
 
     location / {
         proxy_pass ${CKAN_PROXY_PASS};
@@ -61,6 +57,9 @@ server {
         proxy_read_timeout 1000;
         send_timeout 1000;
         client_max_body_size 200M;
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Headers "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers";
+        add_header 'Content-Security-Policy' 'upgrade-insecure-requests';
     }
 
     location /static/ {
