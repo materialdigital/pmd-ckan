@@ -3,6 +3,8 @@ vscode/*
 ckan_plugins/
 tmp/
 .ckan.ini
+docker-compose.override.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

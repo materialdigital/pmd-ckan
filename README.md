@@ -21,6 +21,7 @@ Before you begin, make sure you have the following installed:
 1. Clone this repository to your local machine:
     ```bash
     git clone https://github.com/Mat-O-Lab/DataStack
+    git submodule update --init
     ```
 
 2. Navigate to the pmd-ckan directory:

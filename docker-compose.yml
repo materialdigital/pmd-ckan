@@ -56,9 +56,10 @@ services:
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisord.d/supervisor-ckan-worker.conf
       - ./logs:/var/log/ckan/
-      # replace logo
-      - ./config/logo.png:/srv/app/src/ckan/ckan/public/base/images/ckan-logo.png
-      - ./config/favicon.svg:/srv/app/src/ckan/ckan/public/base/images/favicon.svg
+      # replace logos and banner
+      #- ./config/Logo_white.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
+      #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
+      #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
 
     restart: unless-stopped
     healthcheck:
@@ -142,10 +143,12 @@ services:
     environment:
       APP_NAME: "MapToMethod"
       PORT: ${MAPTOMETHOD_APP_PORT}
+      SSL_VERIFY: ${CSVWMAPANDTRANSFORM_SSL_VERIFY}
+      SERVER_URL: ${CKAN_SITE_URL}/maptomethod
     expose:
       - ${MAPTOMETHOD_APP_PORT}
     restart: always
-    entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1", "--proxy-headers" ]
+    entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1", "--proxy-headers", "--root-path", "/maptomethod" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info" ]
     networks:
