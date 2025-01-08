@@ -105,7 +105,6 @@ services:
       - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
     volumes:
       - jena_data:/fuseki
-      - ./config/fuseki/config.ttl:/fuseki/config.ttl
     stop_grace_period: 10s
     healthcheck:
       test:
