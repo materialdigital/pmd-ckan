@@ -47,7 +47,7 @@ services:
       - "${CKAN_PORT}"
     volumes:
       - ckan_storage:/var/lib/ckan
-      - ./config/ckan/start_ckan.sh:/start_ckan.sh
+      - ./config/ckan/start_ckan.sh:/start_ckan2.sh
       - ./config/ckan/02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
@@ -61,7 +61,7 @@ services:
       #- ./config/your_logo.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
       #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
       #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
-    entrypoint: /start_ckan.sh
+    entrypoint: /start_ckan2.sh
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
