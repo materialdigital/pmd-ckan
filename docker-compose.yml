@@ -28,8 +28,7 @@ services:
     restart: on-failure
   ckan:
     build:
-      context: ckan-docker/ckan/
-      dockerfile: ../../config/ckan/Dockerfile
+      context: config/ckan/
       args:
         - TZ=${TZ}
     env_file:
