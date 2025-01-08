@@ -1,8 +1,8 @@
 FROM ckan/ckan-dev:2.11.0
 
+USER root
 
 ENV APP_DIR=/srv/app
-ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
 
 # Make sure both files are not exactly the same
@@ -14,13 +14,26 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
-RUN buildDeps='locales' \
+RUN buildDeps='locales libpcre3 libpcre3-dev supervisor' \
     && set -x \
     && apt-get update && apt-get install -y $buildDeps --no-install-recommends \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && sed -i 's/^# de_DE.UTF-8 UTF-8$/de_DE.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen en_US.UTF-8 de_DE.UTF-8
 
+#install UWSGI and prepare python nv for user ckan
+RUN apt-get remove uwsgi
+RUN pip3 install uwsgi -I --no-cache-dir
+RUN pip3 freeze > /srv/app/requirements.txt
+
+USER ckan
+ENV VIRTUAL_ENV=/srv/app/.local
+WORKDIR $VIRTUAL_ENV
+
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip3 install -r /srv/app/requirements.txt
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
@@ -77,8 +90,12 @@ RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git#eg
     pip3 install -r https://github.com/Mat-O-Lab/ckanext-matolabtheme/raw/main/requirements.txt
 
 ## AIEXTRACT
-# RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract.git#egg=ckanext-aiextract && \
-#     pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract/-/raw/main/requirements.txt
+RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract.git#egg=ckanext-aiextract && \
+    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract/-/raw/main/requirements.txt
+
+## AIembeddings
+RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings.git#egg=ckanext-aiembeddings && \
+    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings/-/raw/main/requirements.txt
 
 ### Multiuploader
 RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
@@ -100,6 +117,12 @@ COPY docker-entrypoint.d/* /docker-entrypoint.d/
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 COPY patches ${APP_DIR}/patches
+
+
+#create default log location
+WORKDIR /srv/app/logs
+
+WORKDIR /srv/app
 
 RUN for d in $APP_DIR/patches/*; do \
     if [ -d $d ]; then \

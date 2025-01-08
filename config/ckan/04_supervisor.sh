@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Start supervisord
-supervisord --configuration /etc/supervisord.conf &
+supervisord --configuration /etc/supervisor/supervisord.conf &

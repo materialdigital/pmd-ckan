@@ -20,17 +20,17 @@ if $DEBUG; then
 
             if [ -f $i/pip-requirements.txt ];
             then
-                pip install -r $i/pip-requirements.txt
+                pip3 install -r $i/pip-requirements.txt
                 echo "Found requirements file in $i"
             fi
             if [ -f $i/requirements.txt ];
             then
-                pip install -r $i/requirements.txt
+                pip3 install -r $i/requirements.txt
                 echo "Found requirements file in $i"
             fi
             if [ -f $i/dev-requirements.txt ];
             then
-                pip install -r $i/dev-requirements.txt
+                pip3 install -r $i/dev-requirements.txt
                 echo "Found dev-requirements file in $i"
             fi
             if [ -f $i/setup.py ];
@@ -43,7 +43,7 @@ if $DEBUG; then
             if [ -f $i/pyproject.toml ];
             then
                 cd $i
-                pip install -e .
+                pip3 install -e .
                 echo "Found pyproject.toml file in $i"
                 cd $APP_DIR
             fi
@@ -123,7 +123,7 @@ python3 prerun.py
 # Run any startup scripts provided by images extending this one
 if [[ -d "/docker-entrypoint.d" ]]
 then
-    for f in /docker-entrypoint.d/*; do
+    for f in /docker-entrypoint.d/*; do 
         case "$f" in
             *.sh)     echo "$0: Running init file $f"; . "$f" ;;
             *.py)     echo "$0: Running init file $f"; python3 "$f"; echo ;;
@@ -132,13 +132,14 @@ then
     done
 fi
 
+# --plugins-dir /usr/lib/uwsgi/plugins \
+#             --plugins http,python \
+
 # Set the common uwsgi options
-UWSGI_OPTS="--plugins http,python \
-            --socket /tmp/uwsgi.sock \
+UWSGI_OPTS="--socket /tmp/uwsgi.sock \
             --wsgi-file /srv/app/wsgi.py \
             --module wsgi:application \
-            --uid 92 --gid 92 \
-            --http [::]:5000 \
+            --http 0.0.0.0:5000 \
             --master --enable-threads \
             --lazy-apps \
             -p 2 -L -b 32768 --vacuum \
@@ -148,7 +149,7 @@ if $DEBUG; then
     # Start the development server as the ckan user with automatic reload
     echo Starting development server.
     while true; do
-        su ckan -c "$CKAN_RUN $CKAN_OPTIONS"
+        $CKAN_RUN $CKAN_OPTIONS
         echo Exit with status $?. Restarting.
         sleep 2
     done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-temp_ini="options.ini"
+temp_ini="/tmp/options.ini"
 
 function add_to_config_ini {
   touch $temp_ini
