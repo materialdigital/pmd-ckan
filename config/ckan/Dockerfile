@@ -131,4 +131,3 @@ RUN for d in $APP_DIR/patches/*; do \
     done ; \
     fi ; \
     done
-ENTRYPOINT ["/srv/app/start_ckan.sh"]

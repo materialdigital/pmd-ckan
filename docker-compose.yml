@@ -61,6 +61,7 @@ services:
       #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
       #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
     restart: unless-stopped
+    entrypoint: /srv/app/start_ckan.sh
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
     networks:
