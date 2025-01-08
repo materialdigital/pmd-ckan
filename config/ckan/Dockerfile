@@ -109,20 +109,21 @@ RUN pip3 install -e git+https://github.com/dathere/ckanext-sso.git#egg=ckanext-s
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
 
+#create default log location
+WORKDIR /srv/app/logs
+
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 # Copy custom initialization scripts
-COPY docker-entrypoint.d/* /docker-entrypoint.d/
+
+WORKDIR /srv/app
+
+COPY --chown=ckan-sys:ckan-sys start_ckan.sh /srv/app/start_ckan.sh
+COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
 
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 COPY patches ${APP_DIR}/patches
-
-
-#create default log location
-WORKDIR /srv/app/logs
-
-WORKDIR /srv/app
 
 RUN for d in $APP_DIR/patches/*; do \
     if [ -d $d ]; then \
@@ -131,3 +132,4 @@ RUN for d in $APP_DIR/patches/*; do \
     done ; \
     fi ; \
     done
+ENTRYPOINT ["/srv/app/start_ckan.sh"]
