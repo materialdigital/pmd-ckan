@@ -118,7 +118,6 @@ WORKDIR /srv/app/logs
 
 WORKDIR /srv/app
 
-COPY --chown=ckan-sys:ckan-sys ../../config/ckan/start_ckan.sh /srv/app/start_ckan.sh
 COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
 
 # Apply any patches needed to CKAN core or any of the built extensions (not the
