@@ -1,5 +1,6 @@
-# DataStack
-This composition of applications provides a solution for hosting and transforming data into semantic data. It also might be used in a decentralized linked data space with a central data portal instance. It also features a triple store integration.
+# PMD-CKAN
+
+This composition of applications provides a solution for hosting material science data for projects in the material digital initiative to participate in a decentralized linked data space with a central data portal instance. It also features an ontology agnostic transformation pipeline and a triple store integration.
 
 ## Features
 
@@ -18,9 +19,9 @@ Before you begin, make sure you have the following installed:
 
 ## Installation
 
-1. Clone this repository to your local machine:
+1. Clone this repository to your local machine and init submoduls:
     ```bash
-    git clone https://github.com/Mat-O-Lab/DataStack
+    git clone https://github.com/materialdigital/pmd-ckan.git
     git submodule update --init
     ```
 

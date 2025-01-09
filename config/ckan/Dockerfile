@@ -85,20 +85,12 @@ RUN pip3 install ckanext-pdfview
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#egg=ckanext-markdown_view && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-markdown_view/main/requirements.txt
 
-### MATOLABTHEME
-RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git#egg=ckanext-matolabtheme && \
+### MATOLABTHEME - PMD Style
+RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
     pip3 install -r https://github.com/Mat-O-Lab/ckanext-matolabtheme/raw/main/requirements.txt
 
-## AIEXTRACT
-RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract.git#egg=ckanext-aiextract && \
-    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract/-/raw/main/requirements.txt
-
-## AIembeddings
-RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings.git#egg=ckanext-aiembeddings && \
-    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings/-/raw/main/requirements.txt
-
 ### Multiuploader
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
+#RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
 #RUN pip3 install ckanext-multiuploader
 
 ### SSO
