@@ -89,9 +89,9 @@ RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#e
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
     pip3 install -r https://github.com/Mat-O-Lab/ckanext-matolabtheme/raw/main/requirements.txt
 
-### Multiuploader
-#RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
-#RUN pip3 install ckanext-multiuploader
+## Multiuploader
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
+RUN pip3 install ckanext-multiuploader
 
 ### SSO
 RUN pip3 install -e git+https://github.com/dathere/ckanext-sso.git#egg=ckanext-sso && \

@@ -61,7 +61,6 @@ services:
       #- ./config/your_logo.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
       #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
       #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
-    entrypoint: /srv/app/start_ckan.sh
     restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
     healthcheck:
