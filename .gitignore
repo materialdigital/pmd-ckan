@@ -4,6 +4,7 @@ ckan_plugins/
 tmp/
 .ckan.ini
 logs/
+certbot/
 docker-compose.override.yml
 
 # Byte-compiled / optimized / DLL files
