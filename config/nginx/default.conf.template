@@ -1,0 +1,104 @@
+
+server {
+    listen       ${NGINX_PORT};
+    listen  [::]:${NGINX_PORT};
+    listen       ${NGINX_SSLPORT} ssl;
+    listen  [::]:${NGINX_SSLPORT} ssl;
+    server_name  ${CKAN_HOST};
+
+    ssl_certificate /etc/nginx/certs/ckan-local.crt;
+    ssl_certificate_key /etc/nginx/certs/ckan-local.key;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+    #error_log       /var/log/nginx/host.error.log;
+    
+    location /fuseki/{
+        proxy_pass http://fuseki:${FUSEKI_PORT}/;
+        proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
+        proxy_http_version  1.1;
+        proxy_set_header    Upgrade             $http_upgrade;
+        proxy_set_header    Host                $host;
+        proxy_set_header    X-Real-IP           $remote_addr;
+        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        client_max_body_size 200M;
+        proxy_buffering off;
+    }
+
+    location @fuseki_static {
+        proxy_pass http://fuseki:${FUSEKI_PORT};
+    }
+
+    location @ckan_static {
+        proxy_pass http://ckan:${CKAN_PORT};
+        add_header Cache-Control "public, max-age=2592000";
+        expires 30d;
+    }
+
+    location /static/ {
+        proxy_ignore_headers Cache-Control;  # Ignore Cache-Control from the backend
+        try_files $uri $uri/ @fuseki_static @ckan_static;
+    }
+
+    
+    location /sparklis/ {
+        proxy_pass http://sparklis:${SPARKLIS_PORT}/;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+    }
+
+    location /maptomethod/ {
+        proxy_pass http://maptomethod:${MAPTOMETHOD_APP_PORT}/;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization ${CSVWMAPANDTRANSFORM_TOKEN};
+    }
+
+    location /webassets/ {
+        proxy_pass ${CKAN_PROXY_PASS}webassets/;  # Adjust as necessary
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_cache cache;
+        proxy_cache_valid 200 120m;
+        proxy_cache_min_uses 5;
+    
+        # Very important for microcache
+        proxy_cache_background_update on;
+        proxy_cache_revalidate on;
+    
+        # Very important for concurrency
+        proxy_cache_lock on;
+        proxy_cache_use_stale updating;
+
+        # Caching headers
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    location / {
+        proxy_pass ${CKAN_PROXY_PASS};
+        proxy_redirect ${CKAN_PROXY_PASS} /;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        #proxy_send_timeout 1000;
+        #proxy_read_timeout 1000;
+        #send_timeout 1000;
+        client_max_body_size 200M;
+        add_header Access-Control-Allow-Origin "$http_origin" always;
+        #add_header Access-Control-Allow-Origin *;
+        #add_header Access-Control-Allow-Headers "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization";
+        #add_header Access-Control-Allow-Methods "PUT,GET,POST";
+        #add_header 'Content-Security-Policy' 'upgrade-insecure-requests';
+    }
+        
+
+    error_page  404              /404.html;
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}

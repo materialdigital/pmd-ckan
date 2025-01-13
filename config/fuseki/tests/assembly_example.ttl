@@ -1,0 +1,24 @@
+@prefix : <https://docker-dev.iwm.fraunhofer.de/fuseki/$/dataset/> .
+@prefix fuseki: <http://jena.apache.org/fuseki#> .
+@prefix tdb: <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:413f0b44-97d5-40a2-9b63-39f0b913f8b4_Graph a tdb:GraphTDB ;
+    tdb:dataset :413f0b44-97d5-40a2-9b63-39f0b913f8b4 ;
+    tdb:graphName <https://docker-dev.iwm.fraunhofer.de/dataset/test> .
+
+:service a fuseki:Service ;
+    fuseki:dataset :413f0b44-97d5-40a2-9b63-39f0b913f8b4 ;
+    fuseki:endpoint [ fuseki:name "shacl" ;
+            fuseki:operation fuseki:shacl ] ;
+    fuseki:name "413f0b44-97d5-40a2-9b63-39f0b913f8b4" ;
+    fuseki:serviceQuery "query",
+        "sparql" ;
+    fuseki:serviceReadGraphStore "get" ;
+    fuseki:serviceReadWriteGraphStore "data" ;
+    fuseki:serviceUpdate "update" ;
+    fuseki:serviceUpload "upload" .
+
+:413f0b44-97d5-40a2-9b63-39f0b913f8b4 a tdb:DatasetTDB ;
+    tdb:location "413f0b44-97d5-40a2-9b63-39f0b913f8b4" ;
+    tdb:unionDefaultGraph true .
