@@ -1,5 +1,6 @@
-# DataStack
-This composition of applications provides a solution for hosting and transforming data into semantic data. It also might be used in a decentralized linked data space with a central data portal instance. It also features a triple store integration.
+# PMD-CKAN
+
+This composition of applications provides a solution for hosting material science data for projects in the material digital initiative to participate in a decentralized linked data space with a central data portal instance. It also features an ontology agnostic transformation pipeline and a triple store integration.
 
 ## Features
 
@@ -18,9 +19,9 @@ Before you begin, make sure you have the following installed:
 
 ## Installation
 
-1. Clone this repository to your local machine:
+1. Clone this repository to your local machine and init submoduls:
     ```bash
-    git clone https://github.com/Mat-O-Lab/DataStack
+    git clone https://github.com/materialdigital/pmd-ckan.git
     git submodule update --init
     ```
 
@@ -52,6 +53,12 @@ Before you begin, make sure you have the following installed:
     docker-compose up -d
     ```
 
+7. create a api token for the supervisor background tasks at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+8. restart the dockercompose stack in detached mode
+```bash
+docker-compose down
+docker-compose up -d
+```
 ---
 # Acknowledgments
 The authors would like to thank the Federal Government and the Heads of Government of the Länder for their funding and support within the framework of the [Platform Material Digital](https://www.materialdigital.de) consortium. Funded by the German [Federal Ministry of Education and Research (BMBF)](https://www.bmbf.de/bmbf/en/) through the [MaterialDigital](https://www.bmbf.de/SharedDocs/Publikationen/de/bmbf/5/31701_MaterialDigital.pdf?__blob=publicationFile&v=5) Call in Project [KupferDigital](https://www.materialdigital.de/project/1) - project id 13XP5119.
