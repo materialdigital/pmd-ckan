@@ -54,7 +54,7 @@ services:
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
       # only for development
-      - ./ckan_plugins:/srv/app/src_extensions
+      #- ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       #- ./logs:/srv/app/logs
@@ -143,7 +143,7 @@ services:
     environment:
       APP_NAME: "MapToMethod"
       PORT: ${MAPTOMETHOD_APP_PORT}
-      SSL_VERIFY: ${CSVWMAPANDTRANSFORM_SSL_VERIFY}
+      SSL_VERIFY: ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__SSL_VERIFY}
       SERVER_URL: ${CKAN_SITE_URL}/maptomethod
     expose:
       - ${MAPTOMETHOD_APP_PORT}
@@ -176,11 +176,11 @@ services:
     environment:
       PARSER_PORT: ${PARSER_PORT}
       MAPPER_PORT: ${MAPPER_PORT}
-      CONVERTER_PORT: ${RDFCONVERTER_APP_PORT}
+      PORT: ${RDFCONVERTER_APP_PORT}
       YARRRML_URL: http://yarrrml-parser:${PARSER_PORT}
       MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
       APP_NAME: RDFConverter
-      APP_MODE: development
+      APP_MODE: "development"
       SSL_VERIFY: False
     expose:
       - ${RDFCONVERTER_APP_PORT}
