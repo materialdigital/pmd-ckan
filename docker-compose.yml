@@ -21,11 +21,25 @@ services:
     volumes:
       - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./ckan-docker/nginx/setup/nginx.conf:/etc/nginx/nginx.conf
-      - ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
-      - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/ssl/
+    #command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      timeout: 60s
     networks:
       - datastack_net
     restart: on-failure
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    depends_on:
+      nginx:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "while :; do echo 'Starting certificate renewal process...'; certbot renew; echo 'Renewal complete, sleeping for 6 hours'; sleep 6h; done"
   ckan:
     build:
       context: ckan-docker/ckan/
@@ -57,14 +71,14 @@ services:
       - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
-      #- ./logs:/srv/app/logs
+      - ./logs:/srv/app/logs
       # replace logos and banner
       - ./config/Logo_white.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
       - ./config/favicon_pmd.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
       - ./config/banner_top.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_top.png
       - ./config/banner_bottom.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_bottom.png
-    restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
     networks:
@@ -100,7 +114,7 @@ services:
   fuseki:
     build:
       context: config/fuseki/
-    restart: on-failure
+    restart: unless-stopped
     expose:
       - "3030"
     environment:
@@ -117,6 +131,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    labels:
+      - "autoheal=true"
     networks:
       - datastack_net
   csvtocsvw:
@@ -124,8 +140,7 @@ services:
     environment:
       APP_MODE: "production"
       PORT: ${CSVTOCSVW_APP_PORT}
-      SSL_VERIFY: False
-      #ADMIN_MAIL: ${ADMIN_MAIL}
+      SSL_VERIFY: "False"
     expose:
       - ${CSVTOCSVW_APP_PORT}
     restart: always
@@ -175,12 +190,12 @@ services:
     environment:
       PARSER_PORT: ${PARSER_PORT}
       MAPPER_PORT: ${MAPPER_PORT}
-      PORT: ${RDFCONVERTER_APP_PORT}
+      CONVERTER_PORT: ${RDFCONVERTER_APP_PORT}
       YARRRML_URL: http://yarrrml-parser:${PARSER_PORT}
       MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
       APP_NAME: RDFConverter
-      APP_MODE: "development"
-      SSL_VERIFY: False
+      APP_MODE: development
+      SSL_VERIFY: "False"
     expose:
       - ${RDFCONVERTER_APP_PORT}
     image: ghcr.io/mat-o-lab/rdfconverter:latest
