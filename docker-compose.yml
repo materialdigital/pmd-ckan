@@ -54,14 +54,15 @@ services:
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
       # only for development
-      #- ./ckan_plugins:/srv/app/src_extensions
+      - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       #- ./logs:/srv/app/logs
       # replace logos and banner
-      #- ./config/your_logo.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
-      #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
-      #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
+      - ./config/Logo_white.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
+      - ./config/favicon_pmd.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
+      - ./config/banner_top.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_top.png
+      - ./config/banner_bottom.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_bottom.png
     restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
     healthcheck:
