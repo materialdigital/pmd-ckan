@@ -1,10 +1,12 @@
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
-    #listen       ${NGINX_SSLPORT} ssl;
-    #listen  [::]:${NGINX_SSLPORT} ssl;
+    listen       ${NGINX_SSLPORT} ssl;
+    listen  [::]:${NGINX_SSLPORT} ssl;
     server_name  ${CKAN_HOST} www.${CKAN_HOST};
 
+    ssl_certificate /etc/nginx/certs/ckan-local.crt;
+    ssl_certificate_key /etc/nginx/certs/ckan-local.key;
     #ssl_certificate /ssl/live/${CKAN_HOST}/fullchain.pem;
     #ssl_certificate_key /ssl/live/${CKAN_HOST}/privkey.pem;
 
