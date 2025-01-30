@@ -12,6 +12,9 @@ server {
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
     
+    #docker dns as resolver
+    resolver 127.0.0.11 valid=30s;
+    
     location /fuseki/{
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
