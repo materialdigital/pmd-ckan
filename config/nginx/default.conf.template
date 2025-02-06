@@ -12,6 +12,9 @@ server {
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
     
+    #docker dns as resolver
+    resolver 127.0.0.11 valid=30s;
+    
     location /fuseki/{
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
@@ -51,9 +54,15 @@ server {
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Authorization ${CSVWMAPANDTRANSFORM_TOKEN};
+        proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
     }
-
+    location /rdfconverter/ {
+        proxy_pass http://rdfconverter:${RDFCONVERTER_APP_PORT}/;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
+    }
     location /webassets/ {
         proxy_pass ${CKAN_PROXY_PASS}webassets/;  # Adjust as necessary
         proxy_set_header Host $host;
