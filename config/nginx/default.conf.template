@@ -1,16 +1,20 @@
-
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
     listen       ${NGINX_SSLPORT} ssl;
     listen  [::]:${NGINX_SSLPORT} ssl;
-    server_name  ${CKAN_HOST};
+    server_name  ${CKAN_HOST} www.${CKAN_HOST};
 
-    ssl_certificate /etc/nginx/certs/ckan-local.crt;
-    ssl_certificate_key /etc/nginx/certs/ckan-local.key;
+    #ssl_certificate /etc/nginx/certs/ckan-local.crt;
+    #ssl_certificate_key /etc/nginx/certs/ckan-local.key;
+    ssl_certificate /ssl/live/${CKAN_HOST}/fullchain.pem;
+    ssl_certificate_key /ssl/live/${CKAN_HOST}/privkey.pem;
 
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
     
     #docker dns as resolver
     resolver 127.0.0.11 valid=30s;
@@ -42,7 +46,6 @@ server {
         try_files $uri $uri/ @fuseki_static @ckan_static;
     }
 
-    
     location /sparklis/ {
         proxy_pass http://sparklis:${SPARKLIS_PORT}/;
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -56,13 +59,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
     }
-    location /rdfconverter/ {
-        proxy_pass http://rdfconverter:${RDFCONVERTER_APP_PORT}/;
-        proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
-    }
+
     location /webassets/ {
         proxy_pass ${CKAN_PROXY_PASS}webassets/;  # Adjust as necessary
         proxy_set_header Host $host;
@@ -101,7 +98,6 @@ server {
         #add_header Access-Control-Allow-Methods "PUT,GET,POST";
         #add_header 'Content-Security-Policy' 'upgrade-insecure-requests';
     }
-        
 
     error_page  404              /404.html;
     # redirect server error pages to the static page /50x.html
