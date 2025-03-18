@@ -52,13 +52,6 @@ Before you begin, make sure you have the following installed:
     docker-compose down
     docker-compose up -d
     ```
-
-7. create a api token for the supervisor background tasks at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
-8. restart the dockercompose stack in detached mode
-```bash
-docker-compose down
-docker-compose up -d
-```
 ---
 # Acknowledgments
 The authors would like to thank the Federal Government and the Heads of Government of the Länder for their funding and support within the framework of the [Platform Material Digital](https://www.materialdigital.de) consortium. Funded by the German [Federal Ministry of Education and Research (BMBF)](https://www.bmbf.de/bmbf/en/) through the [MaterialDigital](https://www.bmbf.de/SharedDocs/Publikationen/de/bmbf/5/31701_MaterialDigital.pdf?__blob=publicationFile&v=5) Call in Project [KupferDigital](https://www.materialdigital.de/project/1) - project id 13XP5119.
