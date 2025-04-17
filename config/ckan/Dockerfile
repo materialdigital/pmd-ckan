@@ -105,6 +105,23 @@ RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-sso#egg=ckanext-sso && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-sso/refs/heads/dev/requirements.txt
 
+### CITEPROC
+RUN pip3 install -e git+https://github.com/open-data/ckanext-citeproc.git#egg=ckanext-citeproc  && \
+    pip3 install -r https://raw.githubusercontent.com/open-data/ckanext-citeproc/refs/heads/main/requirements.txt
+
+RUN mkdir -p $APP_DIR/cls
+
+# List of CLS styles from https://github.com/citation-style-language/styles/ to offer
+ENV CLSS="https://github.com/citation-style-language/styles/raw/refs/heads/master/aci-materials-journal.csl \
+https://github.com/citation-style-language/styles/raw/refs/heads/master/advanced-engineering-materials.csl \
+https://github.com/citation-style-language/styles/raw/refs/heads/master/advanced-science.csl"
+# Download files from the array of URLs
+RUN echo $CLSS | xargs -n 1 wget -P $APP_DIR/cls/
+
+
+# ### CHAT
+# RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-chat.git#egg=ckanext-chat && \
+#     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-chat/refs/heads/main/requirements.txt
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
