@@ -26,7 +26,7 @@ Before you begin, make sure you have the following installed:
 
 2. Navigate to the pmd-ckan directory:
     ```bash
-    cd ckan-docker-compose
+    cd pmd-ckan
     ```
 
 3. create a .env file, use (example.env)[config/example.env] as a template
@@ -40,7 +40,7 @@ Before you begin, make sure you have the following installed:
 5. make changes according to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
 6. Run the docker compose stack, it will pull and build the necessary containers
     ```bash
-    docker-compose up
+    docker compose up
     ```
 7. After first successful startup, login into ckan with the admin password you defined in your .env
 
@@ -48,10 +48,24 @@ Before you begin, make sure you have the following installed:
 
 9. restart the docker compose stack in detached mode
     ```bash
-    docker-compose down
-    docker-compose up -d
+    docker compose down
+    docker compose up -d
     ```
 
+## Config Option
+Debug and Development Mode
+
+Set debug mode by adding:
+```bash
+# .env
+DEBUG=true
+```
+This will enable the Flask Debug Interface in the UI to help u debuging. If used together with:
+```bash
+docker compose -f compose.dev.yaml up -d
+```
+CKAN plugins in folder ./ckan_plugins will be shared to the ckan container and the server reloads on changes to files for extention test adn development.
+      
 ---
 # Acknowledgments
 The authors would like to thank the Federal Government and the Heads of Government of the Länder for their funding and support within the framework of the [Platform Material Digital](https://www.materialdigital.de) consortium. Funded by the German [Federal Ministry of Education and Research (BMBF)](https://www.bmbf.de/bmbf/en/) through the [MaterialDigital](https://www.bmbf.de/SharedDocs/Publikationen/de/bmbf/5/31701_MaterialDigital.pdf?__blob=publicationFile&v=5) Call in Project [KupferDigital](https://www.materialdigital.de/project/1) - project id 13XP5119.
