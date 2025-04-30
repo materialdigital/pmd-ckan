@@ -13,8 +13,6 @@ services:
     depends_on:
       ckan:
         condition: service_healthy
-      # fuseki:
-      #   condition: service_healthy
     ports:
       - "0.0.0.0:${NGINX_PORT_HOST}:${NGINX_PORT}"
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
@@ -25,11 +23,11 @@ services:
       - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
     networks:
       - datastack_net
-    restart: on-failure
+    restart: unless-stopped
   ckan:
     build:
       context: ckan-docker/ckan/
-      dockerfile: ../../config/ckan/Dockerfile
+      dockerfile: ../../config/ckan/Dockerfile.dev
       args:
         - TZ=${TZ}
     user: "503:502"
@@ -49,15 +47,13 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./config/ckan/start_ckan.sh:/srv/app/start_ckan.sh
-      - ./config/ckan/02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
-      # only for development
-      #- ./ckan_plugins:/srv/app/src_extensions
+      - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
-      #- ./logs:/srv/app/logs
+      - ./logs:/srv/app/logs
       # replace logos and banner
       #- ./config/your_logo.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
       #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
