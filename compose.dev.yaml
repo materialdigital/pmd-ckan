@@ -57,7 +57,7 @@ services:
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
-      #- ./ckan_plugins:/srv/app/src_extensions
+      - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       - ./logs:/srv/app/logs
