@@ -23,6 +23,11 @@ services:
       - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
     networks:
       - datastack_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
     restart: unless-stopped
   ckan:
     build:
@@ -31,6 +36,8 @@ services:
       args:
         - TZ=${TZ}
     user: "503:502"
+    environment:
+      - DEBUG=true
     env_file:
       - .env
     depends_on:
@@ -54,14 +61,13 @@ services:
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       - ./logs:/srv/app/logs
-      # replace logos and banner
-      #- ./config/your_logo.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
-      #- ./config/favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
-      #- ./config/banner.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner.png
     restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
+      interval: 60s
+      start_period: 2m
+      start_interval: 10s
     networks:
       - datastack_net
   db:
@@ -131,7 +137,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info" ]
       interval: 60s
       timeout: 10s
-      retries: 20
+      retries: 5
     networks:
       - datastack_net
   maptomethod:
@@ -147,6 +153,9 @@ services:
     entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1", "--proxy-headers", "--root-path", "/maptomethod" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info" ]
+      interval: 60s
+      timeout: 10s
+      retries: 5
     networks:
       - datastack_net
   yarrrml-parser:
@@ -187,7 +196,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:${RDFCONVERTER_APP_PORT}/info" ]
       interval: 60s
       timeout: 10s
-      retries: 20
+      retries: 5
     networks:
       - datastack_net
   sparklis:

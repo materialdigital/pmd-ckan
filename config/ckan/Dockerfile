@@ -21,19 +21,16 @@ RUN buildDeps='locales libpcre3 libpcre3-dev supervisor' \
     && sed -i 's/^# de_DE.UTF-8 UTF-8$/de_DE.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen en_US.UTF-8 de_DE.UTF-8
 
-#install UWSGI and prepare python nv for user ckan
-RUN apt-get remove uwsgi
-RUN pip3 install uwsgi -I --no-cache-dir
-RUN pip3 freeze > /srv/app/requirements.txt
+# Copy custom initialization scripts
+COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
 
-USER ckan
-ENV VIRTUAL_ENV=/srv/app/.local
-WORKDIR $VIRTUAL_ENV
+# Apply any patches needed to CKAN core or any of the built extensions (not the
+# runtime mounted ones)
+COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-RUN pip3 install -r /srv/app/requirements.txt
+#Install default datastack plugins
+# Install the Python packages
+RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-matolabtheme ckanext-multiuploadform ckanext-sso
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
@@ -48,13 +45,6 @@ RUN pip3 install -r /srv/app/requirements.txt
 RUN  pip3 install -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \
     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-excelforms/main/requirements.txt
 
-### CSVTOCSVW
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvtocsvw.git#egg=ckanext-csvtocsvw && \
-    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvtocsvw/master/requirements.txt
-
-### CSVWMAPANDTRANSFORM
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-csvwmapandtransform.git#egg=ckanext-csvwmapandtransform && \
-    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-csvwmapandtransform/master/requirements.txt
 
 ### SCHEMING
 RUN pip3 install git+https://github.com/ckan/ckanext-scheming.git@27035f4d5b3722c2bc64d39b6c2b1d76c9883636
@@ -74,36 +64,14 @@ RUN pip3 install -e git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext
 RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat  && \
     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
 
-### FUSEKI
-RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-fuseki.git#egg=ckanext-fuseki && \
-    pip3 install -r https://github.com/Mat-O-Lab/ckanext-fuseki/raw/master/requirements.txt
-
-### PDFView
-RUN pip3 install ckanext-pdfview
 
 ### Markdown View
+#RUN  pip3 install --no-cache-dir ckanext-markdown_view
 RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#egg=ckanext-markdown_view && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-markdown_view/main/requirements.txt
 
-### MATOLABTHEME
-RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git#egg=ckanext-matolabtheme && \
-    pip3 install -r https://github.com/Mat-O-Lab/ckanext-matolabtheme/raw/main/requirements.txt
-
-## AIEXTRACT
-RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract.git#egg=ckanext-aiextract && \
-    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiextract/-/raw/main/requirements.txt
-
-## AIembeddings
-RUN  pip3 install -e git+https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings.git#egg=ckanext-aiembeddings && \
-    pip3 install -r https://gitlab.cc-asp.fraunhofer.de/sit/ckanext-aiembeddings/-/raw/main/requirements.txt
-
-### Multiuploader
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-multiuploader.git#egg=ckanext-multiuploader
-#RUN pip3 install ckanext-multiuploader
-
-### SSO
-RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-sso#egg=ckanext-sso && \
-    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-sso/refs/heads/dev/requirements.txt
+### Showcase
+#RUN pip3 install ckanext-showcase
 
 ### CITEPROC
 RUN pip3 install -e git+https://github.com/open-data/ckanext-citeproc.git#egg=ckanext-citeproc  && \
@@ -118,25 +86,11 @@ https://github.com/citation-style-language/styles/raw/refs/heads/master/advanced
 # Download files from the array of URLs
 RUN echo $CLSS | xargs -n 1 wget -P $APP_DIR/cls/
 
-
 # ### CHAT
 # RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-chat.git#egg=ckanext-chat && \
 #     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-chat/refs/heads/main/requirements.txt
 
-# Clone the extension(s) your are writing for your own project in the `src` folder
-# to get them mounted in this image at runtime
-
-# Apply any patches needed to CKAN core or any of the built extensions (not the
-# runtime mounted ones)
-# Copy custom initialization scripts
-
-# Copy custom initialization scripts
-COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
-
-# Apply any patches needed to CKAN core or any of the built extensions (not the
-# runtime mounted ones)
-COPY patches ${APP_DIR}/patches
-
+USER ckan
 
 RUN for d in $APP_DIR/patches/*; do \
         if [ -d $d ]; then \
@@ -145,7 +99,8 @@ RUN for d in $APP_DIR/patches/*; do \
             done ; \
         fi ; \
     done
-#create default log location
-WORKDIR /srv/app/logs
 
-WORKDIR /srv/app
+#create default log location
+WORKDIR ${APP_DIR}/logs
+
+WORKDIR ${APP_DIR}
