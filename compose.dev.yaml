@@ -62,7 +62,6 @@ services:
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       - ./logs:/srv/app/logs
-      - ./config/dp_favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
     restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
     healthcheck:
