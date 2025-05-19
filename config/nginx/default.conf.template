@@ -14,6 +14,14 @@ server {
         root /var/www/certbot;
     }
     
+    #docker dns as resolver
+    resolver 127.0.0.11 valid=30s;
+    
+    proxy_buffer_size 128k;
+    proxy_buffers 4 256k;
+    proxy_busy_buffers_size 256k;
+    
+    
     location /fuseki/{
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;

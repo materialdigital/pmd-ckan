@@ -13,40 +13,32 @@ services:
     depends_on:
       ckan:
         condition: service_healthy
-      # fuseki:
-      #   condition: service_healthy
     ports:
       - "0.0.0.0:${NGINX_PORT_HOST}:${NGINX_PORT}"
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
     volumes:
       - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./ckan-docker/nginx/setup/nginx.conf:/etc/nginx/nginx.conf
-      - ./certbot/www/:/var/www/certbot/:ro
-      - ./certbot/conf/:/ssl/
-    #command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
-      timeout: 60s
+      - ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
+      - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
     networks:
       - datastack_net
-    restart: on-failure
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
-    depends_on:
-      nginx:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c "while :; do echo 'Starting certificate renewal process...'; certbot renew; echo 'Renewal complete, sleeping for 6 hours'; sleep 6h; done"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
   ckan:
+    image: ckan-dev
     build:
       context: ckan-docker/ckan/
-      dockerfile: ../../config/ckan/Dockerfile
+      dockerfile: ../../config/ckan/Dockerfile.dev
       args:
         - TZ=${TZ}
     user: "503:502"
+    environment:
+      - DEBUG=true
     env_file:
       - .env
     depends_on:
@@ -63,24 +55,21 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./config/ckan/start_ckan.sh:/srv/app/start_ckan.sh
-      - ./config/ckan/02_envvars.sh:/docker-entrypoint.d/02_envvars.sh
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
-      # only for development
       - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
       - ./logs:/srv/app/logs
-      # replace logos and banner
-      - ./config/Logo_white.svg:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/Logo.svg
-      - ./config/favicon_pmd.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
-      - ./config/banner_top.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_top.png
-      - ./config/banner_bottom.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/banner_bottom.png
-    entrypoint: /srv/app/start_ckan.sh
+      - ./config/dp_favicon.png:/srv/app/src/ckanext-matolabtheme/ckanext/matolabtheme/public/static/favicon.png
     restart: unless-stopped
+    entrypoint: /srv/app/start_ckan.sh
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
+      interval: 60s
+      start_period: 2m
+      start_interval: 10s
     networks:
       - datastack_net
   db:
@@ -114,7 +103,7 @@ services:
   fuseki:
     build:
       context: config/fuseki/
-    restart: unless-stopped
+    restart: on-failure
     expose:
       - "3030"
     environment:
@@ -140,7 +129,8 @@ services:
     environment:
       APP_MODE: "production"
       PORT: ${CSVTOCSVW_APP_PORT}
-      SSL_VERIFY: "False"
+      SSL_VERIFY: False
+      #ADMIN_MAIL: ${ADMIN_MAIL}
     expose:
       - ${CSVTOCSVW_APP_PORT}
     restart: always
@@ -149,7 +139,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info" ]
       interval: 60s
       timeout: 10s
-      retries: 20
+      retries: 5
     networks:
       - datastack_net
   maptomethod:
@@ -165,6 +155,9 @@ services:
     entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1", "--proxy-headers", "--root-path", "/maptomethod" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info" ]
+      interval: 60s
+      timeout: 10s
+      retries: 5
     networks:
       - datastack_net
   yarrrml-parser:
@@ -190,12 +183,12 @@ services:
     environment:
       PARSER_PORT: ${PARSER_PORT}
       MAPPER_PORT: ${MAPPER_PORT}
-      CONVERTER_PORT: ${RDFCONVERTER_APP_PORT}
+      PORT: ${RDFCONVERTER_APP_PORT}
       YARRRML_URL: http://yarrrml-parser:${PARSER_PORT}
       MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
       APP_NAME: RDFConverter
-      APP_MODE: development
-      SSL_VERIFY: "False"
+      APP_MODE: "development"
+      SSL_VERIFY: False
     expose:
       - ${RDFCONVERTER_APP_PORT}
     image: ghcr.io/mat-o-lab/rdfconverter:latest
@@ -205,7 +198,7 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:${RDFCONVERTER_APP_PORT}/info" ]
       interval: 60s
       timeout: 10s
-      retries: 20
+      retries: 5
     networks:
       - datastack_net
   sparklis:

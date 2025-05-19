@@ -1,4 +1,4 @@
-FROM ckan/ckan-base:2.11.3
+FROM ckan/ckan-dev:2.11.3
 
 USER root
 
@@ -7,7 +7,7 @@ RUN echo ${TZ} > /etc/timezone
 
 # Make sure both files are not exactly the same
 RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
-    cp /usr/share/zoneinfo/${TZ} /etc/localtime ;\
+    cp /usr/share/zoneinfo/${TZ} /etc/localtime y;\
     fi ;
 
 ENV LC_ALL=en_US.UTF-8
@@ -21,12 +21,20 @@ RUN buildDeps='locales libpcre3 libpcre3-dev supervisor' \
     && sed -i 's/^# de_DE.UTF-8 UTF-8$/de_DE.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen en_US.UTF-8 de_DE.UTF-8
 
-# Copy custom initialization scripts
-COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
+#install UWSGI and prepare python nv for user ckan
+RUN apt-get remove uwsgi
+RUN pip3 install uwsgi -I --no-cache-dir
+RUN pip3 freeze > /srv/app/requirements.txt
 
-# Apply any patches needed to CKAN core or any of the built extensions (not the
-# runtime mounted ones)
-COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
+USER ckan
+ENV VIRTUAL_ENV=/srv/app/.local
+WORKDIR $VIRTUAL_ENV
+
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r ${APP_DIR}/requirements.txt
 
 #Install default datastack plugins
 # Install the Python packages
@@ -90,7 +98,13 @@ RUN echo $CLSS | xargs -n 1 wget -P $APP_DIR/cls/
 # RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-chat.git#egg=ckanext-chat && \
 #     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-chat/refs/heads/main/requirements.txt
 
-USER ckan
+# Copy custom initialization scripts
+COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
+
+# Apply any patches needed to CKAN core or any of the built extensions (not the
+# runtime mounted ones)
+COPY patches ${APP_DIR}/patches
+
 
 RUN for d in $APP_DIR/patches/*; do \
         if [ -d $d ]; then \
@@ -99,8 +113,7 @@ RUN for d in $APP_DIR/patches/*; do \
             done ; \
         fi ; \
     done
-
 #create default log location
-WORKDIR ${APP_DIR}/logs
+WORKDIR /srv/app/logs
 
-WORKDIR ${APP_DIR}
+WORKDIR /srv/app
