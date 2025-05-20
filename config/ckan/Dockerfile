@@ -30,7 +30,9 @@ COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 
 #Install default datastack plugins
 # Install the Python packages
-RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-matolabtheme ckanext-multiuploadform ckanext-sso
+RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-multiuploadform ckanext-sso
+
+
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
@@ -40,6 +42,10 @@ RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ck
 #      the CKAN config file (ckan.ini) with the `ckan config-tool` command
 #
 # See README > Extending the base images for more details
+### PMD Theme
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
+    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/refs/heads/pmd/requirements.txt
+
 
 ### EXCELFORMS
 RUN  pip3 install -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \
