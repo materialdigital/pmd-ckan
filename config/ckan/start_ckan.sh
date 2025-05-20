@@ -1,11 +1,24 @@
 #!/bin/bash
+temp_ini="/tmp/options.ini"
+
+function env_to_config_ini {
+  touch $temp_ini
+  for var in $(env | grep "^CKANINI" | cut -d= -f1); do
+    variable_name=$(echo "${var#CKANINI__}" | tr '[:upper:]' '[:lower:]' | sed 's/__/\./g')
+    value=$(eval "echo \$$var")
+    echo "$var -> ${variable_name}=${value}"
+    echo "${variable_name}=${value}" >> $temp_ini
+  done
+  ckan config-tool $CKAN_INI -f $temp_ini
+  rm $temp_ini
+}
 
 if [[ -z "${DEBUG}" ]]; then
   DEBUG=false
 fi
 
 # Install any local extensions in the src_extensions volume
-if $DEBUG; then
+if [[ "$DEBUG" == true ]]; then
     echo "Looking for local extensions to install..."
     echo "Extension dir contents:"
     ls -la $SRC_EXTENSIONS_DIR
@@ -117,7 +130,8 @@ then
     ckan config-tool $CKAN_INI "WTF_CSRF_SECRET_KEY=${WTF_CSRF_SECRET_KEY}"
 fi
 
-
+# must be run before prerun, to have all settings for db init
+env_to_config_ini
 
 # Run the prerun script to init CKAN and create the default admin user
 python3 prerun.py
