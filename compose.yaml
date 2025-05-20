@@ -19,8 +19,10 @@ services:
     volumes:
       - ./config/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./ckan-docker/nginx/setup/nginx.conf:/etc/nginx/nginx.conf
-      - ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
-      - ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
+      #- ./ckan-docker/nginx/setup/ckan-local.crt:/etc/nginx/certs/ckan-local.crt
+      #- ./ckan-docker/nginx/setup/ckan-local.key:/etc/nginx/certs/ckan-local.key
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/ssl/
     networks:
       - datastack_net
     healthcheck:
@@ -29,6 +31,16 @@ services:
       timeout: 10s
       retries: 5
     restart: unless-stopped
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    depends_on:
+      nginx:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "while :; do echo 'Starting certificate renewal process...'; certbot renew; echo 'Renewal complete, sleeping for 6 hours'; sleep 6h; done"
   ckan:
     image: ckan
     build:
@@ -64,7 +76,7 @@ services:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
       interval: 60s
       start_period: 2m
-      start_interval: 10s
+      #start_interval: 10s
     networks:
       - datastack_net
   db:

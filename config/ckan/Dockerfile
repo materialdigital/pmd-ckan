@@ -43,7 +43,7 @@ RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ck
 #
 # See README > Extending the base images for more details
 ### PMD Theme
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
+RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@7886120#egg=ckanext-matolabtheme && \
     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/refs/heads/pmd/requirements.txt
 
 
