@@ -1,8 +1,8 @@
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
-    #listen       ${NGINX_SSLPORT} ssl;
-    #listen  [::]:${NGINX_SSLPORT} ssl;
+    listen       ${NGINX_SSLPORT} ssl;
+    listen  [::]:${NGINX_SSLPORT} ssl;
     server_name  ${CKAN_HOST} www.${CKAN_HOST};
 
     ssl_certificate /etc/nginx/certs/ckan-local.crt;

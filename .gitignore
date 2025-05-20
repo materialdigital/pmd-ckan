@@ -1,6 +1,7 @@
 __pycache__/
 vscode/*
 ckan_plugins/
+certbot/
 tmp/
 .ckan.ini
 logs/
