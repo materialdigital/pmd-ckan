@@ -22,6 +22,7 @@ if [[ "$DEBUG" == true ]]; then
     echo "Looking for local extensions to install..."
     echo "Extension dir contents:"
     ls -la $SRC_EXTENSIONS_DIR
+    # Reinstall setuptools to ensure pkg_resources is available after plugin installations
     for i in $SRC_EXTENSIONS_DIR/*
     do
         if [ -d $i ];
@@ -46,27 +47,39 @@ if [[ "$DEBUG" == true ]]; then
                 pip3 install -r $i/dev-requirements.txt
                 echo "Found dev-requirements file in $i"
             fi
-            if [ -f $i/setup.py ];
-            then
-                cd $i
-                python3 $i/setup.py develop
-                echo "Found setup.py file in $i"
-                cd $APP_DIR
-            fi
+            # Prefer pyproject.toml (modern Python packaging) over setup.py
             if [ -f $i/pyproject.toml ];
             then
                 cd $i
                 pip3 install -e .
                 echo "Found pyproject.toml file in $i"
                 cd $APP_DIR
+            elif [ -f $i/setup.py ];
+            then
+                cd $i
+                python3 $i/setup.py develop
+                echo "Found setup.py file in $i"
+                cd $APP_DIR
             fi
 
-            # Point `use` in test.ini to location of `test-core.ini`
-            if [ -f $i/test.ini ];
-            then
-                echo "Updating \`test.ini\` reference to \`test-core.ini\` for plugin $i"
-                ckan config-tool $i/test.ini "use = config:../../src/ckan/test-core.ini"
-            fi
+        fi
+    done
+    
+    # Downgrade setuptools to ensure compatibility with CKAN CLI
+    # Modern extensions may install setuptools>=70 which removes pkg_resources module,
+    # but CKAN 2.11.3 CLI still depends on pkg_resources.iter_entry_points
+    # This downgrade ensures 'ckan config-tool' and other CLI commands work properly
+    echo "Ensuring setuptools compatibility for CKAN CLI..."
+    pip3 install 'setuptools<70' --force-reinstall --no-deps
+    
+    # Update test.ini files for all installed extensions
+    # Must run after setuptools downgrade to avoid pkg_resources import errors
+    for i in $SRC_EXTENSIONS_DIR/*
+    do
+        if [ -d $i ] && [ -f $i/test.ini ];
+        then
+            echo "Updating \`test.ini\` reference to \`test-core.ini\` for plugin $i"
+            ckan config-tool $i/test.ini "use = config:../../src/ckan/test-core.ini"
         fi
     done
     # Set debug to true
@@ -85,7 +98,7 @@ if [[ "$DEBUG" == true ]]; then
     CKAN_OPTIONS=""
     if [ "$USE_DEBUGPY_FOR_DEV" = true ] ; then
         pip install debugpy
-        CKAN_RUN="/usr/bin/python -m debugpy --listen 0.0.0.0:5678 $CKAN_RUN"
+        CKAN_RUN="/usr/bin/python3 -m debugpy --listen 0.0.0.0:5678 $CKAN_RUN"
         CKAN_OPTIONS="$CKAN_OPTIONS --disable-reloader"
     fi
 
