@@ -30,7 +30,7 @@ COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 
 #Install default datastack plugins
 # Install the Python packages
-RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-multiuploadform ckanext-sso
+RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-multiuploadform ckanext-sso ckanext-markdown-view
 
 
 
@@ -53,7 +53,7 @@ RUN  pip3 install -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckan
 
 
 ### SCHEMING
-RUN pip3 install git+https://github.com/ckan/ckanext-scheming.git@27035f4d5b3722c2bc64d39b6c2b1d76c9883636
+RUN pip3 install git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming
 
 ### HARVEST
 RUN pip3 install -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
@@ -70,12 +70,6 @@ RUN pip3 install -e git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext
 RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat  && \
     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
 
-
-### Markdown View
-#RUN  pip3 install --no-cache-dir ckanext-markdown_view
-RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-markdown_view.git#egg=ckanext-markdown_view && \
-    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-markdown_view/main/requirements.txt
-
 ### Showcase
 #RUN pip3 install ckanext-showcase
 
@@ -91,10 +85,6 @@ https://github.com/citation-style-language/styles/raw/refs/heads/master/advanced
 https://github.com/citation-style-language/styles/raw/refs/heads/master/advanced-science.csl"
 # Download files from the array of URLs
 RUN echo $CLSS | xargs -n 1 wget -P $APP_DIR/cls/
-
-# ### CHAT
-# RUN pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-chat.git#egg=ckanext-chat && \
-#     pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-chat/refs/heads/main/requirements.txt
 
 USER ckan
 
