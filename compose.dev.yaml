@@ -43,12 +43,12 @@ services:
       /bin/sh -c "while :; do echo 'Starting certificate renewal process...'; certbot renew; echo 'Renewal complete, sleeping for 6 hours'; sleep 6h; done"
   ckan:
     image: ckan-dev
+    user: "0:0"  # Run as root to allow entrypoint to fix permissions, then drop to 503:502
     build:
       context: ckan-docker/ckan/
       dockerfile: ../../config/ckan/Dockerfile.dev
       args:
         - TZ=${TZ}
-    user: "503:502"
     environment:
       - DEBUG=true
     env_file:
@@ -66,6 +66,7 @@ services:
       - "${CKAN_PORT}"
     volumes:
       - ckan_storage:/var/lib/ckan
+      - ./config/ckan/entrypoint_wrapper.sh:/srv/app/entrypoint_wrapper.sh
       - ./config/ckan/start_ckan.sh:/srv/app/start_ckan.sh
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
@@ -73,9 +74,9 @@ services:
       - ./ckan_plugins:/srv/app/src_extensions
       # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
-      - ./logs:/srv/app/logs
+      #- ./logs:/srv/app/logs
     restart: unless-stopped
-    entrypoint: /srv/app/start_ckan.sh
+    entrypoint: /srv/app/entrypoint_wrapper.sh
     healthcheck:
       test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
       interval: 60s
@@ -118,16 +119,19 @@ services:
     expose:
       - "3030"
     environment:
-      - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0 -Dhttp.proxyHost=${CKAN_HOST} -Dhttp.proxyPort=80
+      - JAVA_OPTIONS=-Xmx10g -Xms10g -DentityExpansionLimit=0
       - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
+      - ENABLE_DATA_WRITE=true
+      - ENABLE_UPDATE=true
+      - ENABLE_UPLOAD=true
+      - QUERY_TIMEOUT=60000
     volumes:
-      - jena_data:/fuseki
+      - jena_data:/fuseki-base
     stop_grace_period: 10s
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "wget -qO /dev/null http://localhost:3030/$$/ping"
-        - "test ! -f /system/tdb.lock"
+        - "wget -qO /dev/null http://localhost:3030/$$/ping || exit 1"
       interval: 10s
       timeout: 5s
       retries: 3
