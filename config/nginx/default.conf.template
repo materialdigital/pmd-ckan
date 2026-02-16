@@ -1,16 +1,18 @@
-
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
     listen       ${NGINX_SSLPORT} ssl;
     listen  [::]:${NGINX_SSLPORT} ssl;
-    server_name  ${CKAN_HOST};
+    server_name  ${CKAN_HOST} www.${CKAN_HOST};
 
     ssl_certificate /etc/nginx/certs/ckan-local.crt;
     ssl_certificate_key /etc/nginx/certs/ckan-local.key;
 
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
     
     #docker dns as resolver
     resolver 127.0.0.11 valid=30s;
@@ -20,34 +22,53 @@ server {
     proxy_busy_buffers_size 256k;
     
     
-    location /fuseki/{
+    # Fuseki main location - proxy to root of Fuseki server
+    location /fuseki/ {
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
         proxy_http_version  1.1;
         proxy_set_header    Upgrade             $http_upgrade;
         proxy_set_header    Host                $host;
         proxy_set_header    X-Real-IP           $remote_addr;
-        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Prefix  /fuseki;
         client_max_body_size 200M;
         proxy_buffering off;
     }
 
-    location @fuseki_static {
-        proxy_pass http://fuseki:${FUSEKI_PORT};
+    # Serve Fuseki static assets at /fuseki/static/ by proxying to Fuseki's /static/
+    location /fuseki/static/ {
+        proxy_pass http://fuseki:${FUSEKI_PORT}/static/;
+        proxy_http_version  1.1;
+        proxy_set_header    Host                $host;
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
     }
 
-    location @ckan_static {
-        proxy_pass http://ckan:${CKAN_PORT};
+    # Serve Fuseki favicon
+    location /fuseki/favicon.ico {
+        proxy_pass http://fuseki:${FUSEKI_PORT}/favicon.ico;
+    }
+
+    # Named location for Fuseki static files (internal use only - fallback)
+    location @fuseki_static {
+        proxy_pass http://fuseki:${FUSEKI_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        add_header Cache-Control "public, max-age=3600";
+        expires 1h;
+    }
+
+    # CKAN static files with fallback to Fuseki
+    location /static/ {
+        proxy_pass http://ckan:${CKAN_PORT}/static/;
+        proxy_set_header Host $host;
+        proxy_intercept_errors on;
+        error_page 404 = @fuseki_static;
         add_header Cache-Control "public, max-age=2592000";
         expires 30d;
     }
 
-    location /static/ {
-        proxy_ignore_headers Cache-Control;  # Ignore Cache-Control from the backend
-        try_files $uri $uri/ @fuseki_static @ckan_static;
-    }
-
-    
     location /sparklis/ {
         proxy_pass http://sparklis:${SPARKLIS_PORT}/;
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -61,13 +82,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
     }
-    location /rdfconverter/ {
-        proxy_pass http://rdfconverter:${RDFCONVERTER_APP_PORT}/;
-        proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Authorization ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__CKAN_TOKEN};
-    }
+
     location /webassets/ {
         proxy_pass ${CKAN_PROXY_PASS}webassets/;  # Adjust as necessary
         proxy_set_header Host $host;
@@ -106,7 +121,6 @@ server {
         #add_header Access-Control-Allow-Methods "PUT,GET,POST";
         #add_header 'Content-Security-Policy' 'upgrade-insecure-requests';
     }
-        
 
     error_page  404              /404.html;
     # redirect server error pages to the static page /50x.html
