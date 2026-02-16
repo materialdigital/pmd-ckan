@@ -22,31 +22,51 @@ server {
     proxy_busy_buffers_size 256k;
     
     
-    location /fuseki/{
+    # Fuseki main location - proxy to root of Fuseki server
+    location /fuseki/ {
         proxy_pass http://fuseki:${FUSEKI_PORT}/;
         proxy_redirect http://fuseki:${FUSEKI_PORT}/ /fuseki/;
         proxy_http_version  1.1;
         proxy_set_header    Upgrade             $http_upgrade;
         proxy_set_header    Host                $host;
         proxy_set_header    X-Real-IP           $remote_addr;
-        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Prefix  /fuseki;
         client_max_body_size 200M;
         proxy_buffering off;
     }
 
+    # Serve Fuseki static assets at /fuseki/static/ by proxying to Fuseki's /static/
+    location /fuseki/static/ {
+        proxy_pass http://fuseki:${FUSEKI_PORT}/static/;
+        proxy_http_version  1.1;
+        proxy_set_header    Host                $host;
+        expires 1h;
+        add_header Cache-Control "public, max-age=3600";
+    }
+
+    # Serve Fuseki favicon
+    location /fuseki/favicon.ico {
+        proxy_pass http://fuseki:${FUSEKI_PORT}/favicon.ico;
+    }
+
+    # Named location for Fuseki static files (internal use only - fallback)
     location @fuseki_static {
         proxy_pass http://fuseki:${FUSEKI_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        add_header Cache-Control "public, max-age=3600";
+        expires 1h;
     }
 
-    location @ckan_static {
-        proxy_pass http://ckan:${CKAN_PORT};
+    # CKAN static files with fallback to Fuseki
+    location /static/ {
+        proxy_pass http://ckan:${CKAN_PORT}/static/;
+        proxy_set_header Host $host;
+        proxy_intercept_errors on;
+        error_page 404 = @fuseki_static;
         add_header Cache-Control "public, max-age=2592000";
         expires 30d;
-    }
-
-    location /static/ {
-        proxy_ignore_headers Cache-Control;  # Ignore Cache-Control from the backend
-        try_files $uri $uri/ @fuseki_static @ckan_static;
     }
 
     location /sparklis/ {

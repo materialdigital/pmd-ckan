@@ -102,16 +102,19 @@ services:
     expose:
       - "3030"
     environment:
-      - JVM_ARGS=-Xmx10g -DentityExpansionLimit=0 -Dhttp.proxyHost=${CKAN_HOST} -Dhttp.proxyPort=80
+      - JAVA_OPTIONS=-Xmx10g -Xms10g -DentityExpansionLimit=0
       - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
+      - ENABLE_DATA_WRITE=true
+      - ENABLE_UPDATE=true
+      - ENABLE_UPLOAD=true
+      - QUERY_TIMEOUT=60000
     volumes:
-      - jena_data:/fuseki
+      - jena_data:/fuseki-base
     stop_grace_period: 10s
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "wget -qO /dev/null http://localhost:3030/$$/ping"
-        - "test ! -f /system/tdb.lock"
+        - "wget -qO /dev/null http://localhost:3030/$$/ping || exit 1"
       interval: 10s
       timeout: 5s
       retries: 3
