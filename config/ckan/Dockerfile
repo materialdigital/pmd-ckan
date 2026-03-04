@@ -30,7 +30,7 @@ COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 
 #Install default datastack plugins
 # Install the Python packages
-RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-multiuploadform ckanext-sso ckanext-markdown-view
+RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki==1.0.8 ckanext-pdfview ckanext-multiuploadform ckanext-sso ckanext-markdown-view
 
 
 
