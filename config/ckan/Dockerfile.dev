@@ -38,7 +38,7 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 
 #Install default datastack plugins
 # Install the Python packages
-RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki ckanext-pdfview ckanext-multiuploadform ckanext-sso
+RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki==1.0.8 ckanext-pdfview ckanext-multiuploadform ckanext-sso
 
 # Install any extensions needed by your CKAN instance
 # - Make sure to add the plugins to CKAN__PLUGINS in the .env file
