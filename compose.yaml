@@ -49,8 +49,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    expose:
-      - "${CKAN_PORT}"
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./config/ckan/start_ckan.sh:/srv/app/start_ckan.sh
@@ -109,8 +107,6 @@ services:
       - ENABLE_UPDATE=true
       - ENABLE_UPLOAD=true
       - QUERY_TIMEOUT=60000
-    expose:
-      - "3030"
     volumes:
       - jena_data:/fuseki-base
     stop_grace_period: 10s
@@ -126,16 +122,13 @@ services:
       - datastack_net
 
   csvtocsvw:
-    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/CSVToCSVW/releases
     image: ghcr.io/mat-o-lab/csvtocsvw:latest
     environment:
       APP_MODE: production
       PORT: "${CSVTOCSVW_APP_PORT}"
       SSL_VERIFY: "False"
-    expose:
-      - "${CSVTOCSVW_APP_PORT}"
     restart: unless-stopped
-    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${CSVTOCSVW_APP_PORT}", --workers, 1, --proxy-headers]
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${CSVTOCSVW_APP_PORT}", --workers, "1", --proxy-headers]
     healthcheck:
       test: [CMD, curl, -f, "http://localhost:${CSVTOCSVW_APP_PORT}/info"]
       interval: 60s
@@ -152,10 +145,8 @@ services:
       PORT: "${MAPTOMETHOD_APP_PORT}"
       SSL_VERIFY: "${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__SSL_VERIFY}"
       SERVER_URL: "${CKAN_SITE_URL}/maptomethod"
-    expose:
-      - "${MAPTOMETHOD_APP_PORT}"
     restart: unless-stopped
-    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${MAPTOMETHOD_APP_PORT}", --workers, 1, --proxy-headers, --root-path, /maptomethod]
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${MAPTOMETHOD_APP_PORT}", --workers, "1", --proxy-headers, --root-path, /maptomethod]
     healthcheck:
       test: [CMD, curl, -f, "http://localhost:${MAPTOMETHOD_APP_PORT}/info"]
       interval: 60s
@@ -169,11 +160,9 @@ services:
     image: ghcr.io/mat-o-lab/yarrrml-parser:latest
     environment:
       - "PORT=${PARSER_PORT}"
-    expose:
-      - "${PARSER_PORT}"
     restart: unless-stopped
     healthcheck:
-      test: [CMD-SHELL, "wget -qO /dev/null http://localhost:${PARSER_PORT}/ || exit 1"]
+      test: [CMD-SHELL, "nc -z localhost ${PARSER_PORT}"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -186,8 +175,6 @@ services:
     image: ghcr.io/mat-o-lab/rmlmapper-webapi:latest
     environment:
       - "PORT=${MAPPER_PORT}"
-    expose:
-      - "${MAPPER_PORT}"
     restart: unless-stopped
     healthcheck:
       test: [CMD-SHELL, wget -qO /dev/null http://localhost:4000/ || exit 1]
@@ -200,6 +187,11 @@ services:
   rdfconverter:
     # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/RDFConverter/releases
     image: ghcr.io/mat-o-lab/rdfconverter:latest
+    depends_on:
+      yarrrml-parser:
+        condition: service_healthy
+      rmlmapper:
+        condition: service_healthy
     environment:
       PARSER_PORT: "${PARSER_PORT}"
       MAPPER_PORT: "${MAPPER_PORT}"
@@ -209,10 +201,8 @@ services:
       APP_NAME: RDFConverter
       APP_MODE: production
       SSL_VERIFY: "False"
-    expose:
-      - "${RDFCONVERTER_APP_PORT}"
     restart: unless-stopped
-    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${RDFCONVERTER_APP_PORT}", --workers, 1, --proxy-headers]
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${RDFCONVERTER_APP_PORT}", --workers, "1", --proxy-headers]
     healthcheck:
       test: [CMD, curl, -f, "http://localhost:${RDFCONVERTER_APP_PORT}/info"]
       interval: 60s
@@ -224,8 +214,6 @@ services:
   sparklis:
     # TODO: pin to a specific release tag — https://github.com/sebferre/sparklis/releases
     image: sferre/sparklis:latest
-    expose:
-      - 8080
     restart: unless-stopped
     healthcheck:
       test: [CMD-SHELL, wget -qO /dev/null http://localhost:8080/ || exit 1]
