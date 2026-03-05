@@ -7,9 +7,9 @@ volumes:
 
 services:
   nginx:
+    image: nginx:1.27-alpine
     env_file:
       - .env
-    image: nginx:stable-alpine
     depends_on:
       ckan:
         condition: service_healthy
@@ -24,11 +24,12 @@ services:
     networks:
       - datastack_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      test: [CMD-SHELL, wget -qO /dev/null http://localhost || exit 1]
       interval: 60s
       timeout: 10s
       retries: 5
     restart: unless-stopped
+
   ckan:
     image: ckan
     build:
@@ -36,7 +37,7 @@ services:
       dockerfile: ../../config/ckan/Dockerfile
       args:
         - TZ=${TZ}
-    user: "503:502"
+    user: 503:502
     environment:
       - DEBUG=false
     env_file:
@@ -56,17 +57,17 @@ services:
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
-      # config for the background supervisor jobs
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
     restart: unless-stopped
     entrypoint: /srv/app/start_ckan.sh
     healthcheck:
-      test: [ "CMD", "wget", "-qO", "/dev/null", "http://ckan:${CKAN_PORT}" ]
+      test: [CMD, wget, -qO, /dev/null, "http://ckan:${CKAN_PORT}"]
       interval: 60s
       start_period: 2m
       start_interval: 10s
     networks:
       - datastack_net
+
   db:
     build:
       context: ckan-docker/postgresql/
@@ -76,133 +77,163 @@ services:
       - pg_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
+      test: [CMD, pg_isready, -U, "${POSTGRES_USER}", -d, "${POSTGRES_DB}"]
     networks:
       - datastack_net
+
   solr:
-    image: ckan/ckan-solr:${SOLR_IMAGE_VERSION}
+    image: "ckan/ckan-solr:${SOLR_IMAGE_VERSION}"
     volumes:
       - solr_data:/var/solr
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "wget", "-qO", "/dev/null", "http://localhost:8983/solr/" ]
+      test: [CMD, wget, -qO, /dev/null, http://localhost:8983/solr/]
     networks:
       - datastack_net
+
   redis:
-    image: redis:${REDIS_VERSION}
+    image: "redis:${REDIS_VERSION}"
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "redis-cli", "-e", "QUIT" ]
+      test: [CMD, redis-cli, -e, QUIT]
     networks:
       - datastack_net
+
   fuseki:
     build:
       context: config/fuseki/
-    restart: on-failure
-    expose:
-      - "3030"
     environment:
-      - JAVA_OPTIONS=-Xmx10g -Xms10g -DentityExpansionLimit=0
-      - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
+      - "JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}"
+      - "ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}"
       - ENABLE_DATA_WRITE=true
       - ENABLE_UPDATE=true
       - ENABLE_UPLOAD=true
       - QUERY_TIMEOUT=60000
+    expose:
+      - "3030"
     volumes:
       - jena_data:/fuseki-base
     stop_grace_period: 10s
     healthcheck:
       test:
-        - "CMD-SHELL"
-        - "wget -qO /dev/null http://localhost:3030/$$/ping || exit 1"
+        - CMD-SHELL
+        - wget -qO /dev/null http://localhost:3030/$$/ping || exit 1
       interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - datastack_net
+
+  csvtocsvw:
+    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/CSVToCSVW/releases
+    image: ghcr.io/mat-o-lab/csvtocsvw:latest
+    environment:
+      APP_MODE: production
+      PORT: "${CSVTOCSVW_APP_PORT}"
+      SSL_VERIFY: "False"
+    expose:
+      - "${CSVTOCSVW_APP_PORT}"
+    restart: unless-stopped
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${CSVTOCSVW_APP_PORT}", --workers, 1, --proxy-headers]
+    healthcheck:
+      test: [CMD, curl, -f, "http://localhost:${CSVTOCSVW_APP_PORT}/info"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    networks:
+      - datastack_net
+
+  maptomethod:
+    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/MapToMethod/releases
+    image: ghcr.io/mat-o-lab/maptomethod:latest
+    environment:
+      APP_NAME: MapToMethod
+      PORT: "${MAPTOMETHOD_APP_PORT}"
+      SSL_VERIFY: "${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__SSL_VERIFY}"
+      SERVER_URL: "${CKAN_SITE_URL}/maptomethod"
+    expose:
+      - "${MAPTOMETHOD_APP_PORT}"
+    restart: unless-stopped
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${MAPTOMETHOD_APP_PORT}", --workers, 1, --proxy-headers, --root-path, /maptomethod]
+    healthcheck:
+      test: [CMD, curl, -f, "http://localhost:${MAPTOMETHOD_APP_PORT}/info"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+    networks:
+      - datastack_net
+
+  yarrrml-parser:
+    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/yarrrml-parser/releases
+    image: ghcr.io/mat-o-lab/yarrrml-parser:latest
+    environment:
+      - "PORT=${PARSER_PORT}"
+    expose:
+      - "${PARSER_PORT}"
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, "wget -qO /dev/null http://localhost:${PARSER_PORT}/ || exit 1"]
+      interval: 30s
       timeout: 5s
       retries: 3
     networks:
       - datastack_net
-  csvtocsvw:
-    image: "ghcr.io/mat-o-lab/csvtocsvw:latest"
-    environment:
-      APP_MODE: "production"
-      PORT: ${CSVTOCSVW_APP_PORT}
-      SSL_VERIFY: False
-      #ADMIN_MAIL: ${ADMIN_MAIL}
-    expose:
-      - ${CSVTOCSVW_APP_PORT}
-    restart: always
-    entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CSVTOCSVW_APP_PORT}", "--workers", "1", "--proxy-headers" ]
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${CSVTOCSVW_APP_PORT}/info" ]
-      interval: 60s
-      timeout: 10s
-      retries: 5
-    networks:
-      - datastack_net
-  maptomethod:
-    image: ghcr.io/mat-o-lab/maptomethod:latest
-    environment:
-      APP_NAME: "MapToMethod"
-      PORT: ${MAPTOMETHOD_APP_PORT}
-      SSL_VERIFY: ${CKANINI__CKANEXT__CSVWMAPANDTRANSFORM__SSL_VERIFY}
-      SERVER_URL: ${CKAN_SITE_URL}/maptomethod
-    expose:
-      - ${MAPTOMETHOD_APP_PORT}
-    restart: always
-    entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${MAPTOMETHOD_APP_PORT}", "--workers", "1", "--proxy-headers", "--root-path", "/maptomethod" ]
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${MAPTOMETHOD_APP_PORT}/info" ]
-      interval: 60s
-      timeout: 10s
-      retries: 5
-    networks:
-      - datastack_net
-  yarrrml-parser:
-    environment:
-      - PORT=${PARSER_PORT}
-    image: ghcr.io/mat-o-lab/yarrrml-parser:latest
-    expose:
-      - ${PARSER_PORT}
-    restart: always
-    networks:
-      - datastack_net
+
   rmlmapper:
-    # changing port doesnt work - issue on rmlmapper side
-    environment:
-      - PORT=${MAPPER_PORT}
+    # Note: changing PORT does not work due to an upstream limitation; port is effectively fixed at 4000.
+    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/RMLMapper/releases
     image: ghcr.io/mat-o-lab/rmlmapper-webapi:latest
+    environment:
+      - "PORT=${MAPPER_PORT}"
     expose:
-      - ${MAPPER_PORT}
-    restart: always
+      - "${MAPPER_PORT}"
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, wget -qO /dev/null http://localhost:4000/ || exit 1]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
       - datastack_net
+
   rdfconverter:
-    environment:
-      PARSER_PORT: ${PARSER_PORT}
-      MAPPER_PORT: ${MAPPER_PORT}
-      PORT: ${RDFCONVERTER_APP_PORT}
-      YARRRML_URL: http://yarrrml-parser:${PARSER_PORT}
-      MAPPER_URL: http://rmlmapper:${MAPPER_PORT}
-      APP_NAME: RDFConverter
-      APP_MODE: "development"
-      SSL_VERIFY: False
-    expose:
-      - ${RDFCONVERTER_APP_PORT}
+    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/RDFConverter/releases
     image: ghcr.io/mat-o-lab/rdfconverter:latest
-    restart: always
-    entrypoint: [ "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${RDFCONVERTER_APP_PORT}", "--workers", "1", "--proxy-headers" ]
+    environment:
+      PARSER_PORT: "${PARSER_PORT}"
+      MAPPER_PORT: "${MAPPER_PORT}"
+      PORT: "${RDFCONVERTER_APP_PORT}"
+      YARRRML_URL: "http://yarrrml-parser:${PARSER_PORT}"
+      MAPPER_URL: "http://rmlmapper:${MAPPER_PORT}"
+      APP_NAME: RDFConverter
+      APP_MODE: production
+      SSL_VERIFY: "False"
+    expose:
+      - "${RDFCONVERTER_APP_PORT}"
+    restart: unless-stopped
+    entrypoint: [uvicorn, app:app, --host, 0.0.0.0, --port, "${RDFCONVERTER_APP_PORT}", --workers, 1, --proxy-headers]
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${RDFCONVERTER_APP_PORT}/info" ]
+      test: [CMD, curl, -f, "http://localhost:${RDFCONVERTER_APP_PORT}/info"]
       interval: 60s
       timeout: 10s
       retries: 5
     networks:
       - datastack_net
+
   sparklis:
+    # TODO: pin to a specific release tag — https://github.com/sebferre/sparklis/releases
+    image: sferre/sparklis:latest
     expose:
       - 8080
-    image: sferre/sparklis:latest
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, wget -qO /dev/null http://localhost:8080/ || exit 1]
+      interval: 60s
+      timeout: 10s
+      retries: 5
     networks:
       - datastack_net
-    restart: unless-stopped
+
 networks:
   datastack_net:
