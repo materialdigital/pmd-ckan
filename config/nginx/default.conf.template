@@ -10,9 +10,6 @@ server {
 
     #access_log  /var/log/nginx/host.access.log  main;
     #error_log       /var/log/nginx/host.error.log;
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
     
     #docker dns as resolver
     resolver 127.0.0.11 valid=30s;
