@@ -37,7 +37,6 @@ services:
       dockerfile: ../../config/ckan/Dockerfile
       args:
         - TZ=${TZ}
-    user: 503:502
     environment:
       - DEBUG=false
     env_file:
@@ -57,7 +56,6 @@ services:
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
     restart: unless-stopped
-    entrypoint: /srv/app/start_ckan.sh
     healthcheck:
       test: [CMD, wget, -qO, /dev/null, "http://ckan:${CKAN_PORT}"]
       interval: 60s
