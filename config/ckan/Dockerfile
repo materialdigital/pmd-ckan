@@ -28,54 +28,30 @@ COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
 # runtime mounted ones)
 COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 
-#Install default datastack plugins
-# Install the Python packages
-RUN pip3 install --no-cache-dir ckanext-csvtocsvw ckanext-csvwmapandtransform ckanext-fuseki==1.0.8 ckanext-pdfview ckanext-multiuploadform ckanext-sso ckanext-markdown-view
-
-
-
-# Install any extensions needed by your CKAN instance
-# - Make sure to add the plugins to CKAN__PLUGINS in the .env file
-# - Also make sure all provide all extra configuration options, either by:
-#   * Adding them to the .env file (check the ckanext-envvars syntax for env vars), or
-#   * Adding extra configuration scripts to /docker-entrypoint.d folder) to update
-#      the CKAN config file (ckan.ini) with the `ckan config-tool` command
-#
-# See README > Extending the base images for more details
-### PMD Theme
-RUN  pip3 install -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
-    pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/refs/heads/pmd/requirements.txt
-
-
-### EXCELFORMS
-RUN  pip3 install -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \
-    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-excelforms/main/requirements.txt
-
-
-### SCHEMING
-RUN pip3 install git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming
-
-### HARVEST
-RUN pip3 install -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
-    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-harvest/master/requirements.txt
-
-# ### DCATDE-AP
+# Install extensions from PyPI. Git installs:
+#   ckanext-excelforms    — not on PyPI
+#   ckanext-matolabtheme  — pmd branch, not on PyPI
+RUN pip3 install --no-cache-dir \
+        ckanext-csvtocsvw \
+        ckanext-csvwmapandtransform \
+        "ckanext-fuseki>=1.0.8" \
+        ckanext-pdfview \
+        ckanext-multiuploadform \
+        ckanext-sso \
+        ckanext-markdown-view \
+        ckanext-scheming \
+        ckanext-dcat && \
+        pip3 install --no-cache-dir -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
+        pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/pmd/requirements.txt && \
+        pip3 install --no-cache-dir -e git+https://github.com/open-data/ckanext-citeproc.git#egg=ckanext-citeproc  && \
+        pip3 install -r https://raw.githubusercontent.com/open-data/ckanext-citeproc/refs/heads/main/requirements.txt && \
+        pip3 install --no-cache-dir -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \
+        pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-excelforms/main/requirements.txt && \
+        pip3 install --no-cache-dir -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
+        pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-harvest/master/requirements.txt
+# ### DCATDE-AP (optional)
 # RUN pip3 install -e git+https://github.com/GovDataOfficial/ckanext-dcatde.git#egg=ckanext-dcatde && \
 #     pip3 install -r https://raw.githubusercontent.com/GovDataOfficial/ckanext-dcatde/master/base-requirements.txt
-
-#Should be installed by the previous
-### DCAT
-#ckanext-scheming is needed with dcat
-RUN pip3 install -e git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming
-RUN pip3 install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat  && \
-    pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
-
-### Showcase
-#RUN pip3 install ckanext-showcase
-
-### CITEPROC
-RUN pip3 install -e git+https://github.com/open-data/ckanext-citeproc.git#egg=ckanext-citeproc  && \
-    pip3 install -r https://raw.githubusercontent.com/open-data/ckanext-citeproc/refs/heads/main/requirements.txt
 
 WORKDIR $APP_DIR/cls
 
