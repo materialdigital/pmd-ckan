@@ -14,5 +14,6 @@ services:
       - DEBUG=true
     volumes:
       - ./config/ckan/entrypoint_wrapper.sh:/srv/app/entrypoint_wrapper.sh
+      - ./config/ckan/02_backgroundjobs.sh:/docker-entrypoint.d/02_backgroundjobs.sh
       - ./ckan_plugins:/srv/app/src_extensions
     entrypoint: /srv/app/entrypoint_wrapper.sh
