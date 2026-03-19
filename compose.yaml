@@ -97,8 +97,7 @@ services:
       - datastack_net
 
   fuseki:
-    build:
-      context: config/fuseki/
+    image: secoresearch/fuseki:4.9.0
     environment:
       - "JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}"
       - "ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}"
@@ -108,6 +107,8 @@ services:
       - QUERY_TIMEOUT=60000
     volumes:
       - jena_data:/fuseki-base
+      - ./config/fuseki/index.html:/jena-fuseki/webapp/index.html
+      - ./config/fuseki/shiro.ini:/jena-fuseki/shiro.ini
     stop_grace_period: 10s
     healthcheck:
       test:
