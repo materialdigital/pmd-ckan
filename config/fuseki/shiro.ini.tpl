@@ -12,7 +12,7 @@ iniRealm.credentialsMatcher = $plainMatcher
 
 [users]
 # Implicitly adds "iniRealm =  org.apache.shiro.realm.text.IniRealm"
-admin=pw
+admin=placeholder
 
 [roles]
 
@@ -23,7 +23,7 @@ admin=pw
 
 ## Allow the UI to load without auth (Vue SPA + static assets)
 /static/** = anon
-/ = anon
+/ = authcBasic,user[admin]
 
 ## Admin and all data endpoints require HTTP Basic Auth
 /$/** = authcBasic,user[admin]
