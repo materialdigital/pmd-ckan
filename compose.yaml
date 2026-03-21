@@ -31,7 +31,6 @@ services:
     restart: unless-stopped
 
   ckan:
-    image: ckan
     build:
       context: ckan-docker/ckan/
       dockerfile: ../../config/ckan/Dockerfile
