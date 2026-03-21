@@ -13,6 +13,8 @@ services:
     depends_on:
       ckan:
         condition: service_healthy
+      fuseki:
+        condition: service_healthy
     ports:
       - "0.0.0.0:${NGINX_PORT_HOST}:${NGINX_PORT}"
       - "0.0.0.0:${NGINX_SSLPORT_HOST}:${NGINX_SSLPORT}"
@@ -31,7 +33,6 @@ services:
     restart: unless-stopped
 
   ckan:
-    image: ckan
     build:
       context: ckan-docker/ckan/
       dockerfile: ../../config/ckan/Dockerfile
@@ -104,10 +105,13 @@ services:
       - ENABLE_UPDATE=true
       - ENABLE_UPLOAD=true
       - QUERY_TIMEOUT=60000
+    entrypoint: ["/fuseki-init/entrypoint.sh"]
+    command: ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.cmd.FusekiCmd"]
     volumes:
       - jena_data:/fuseki-base
       - ./config/fuseki/index.html:/jena-fuseki/webapp/index.html
-      - ./config/fuseki/shiro.ini:/jena-fuseki/shiro.ini
+      - ./config/fuseki/shiro.ini.tpl:/fuseki-init/shiro.ini.tpl:ro
+      - ./config/fuseki/entrypoint.sh:/fuseki-init/entrypoint.sh:ro
     stop_grace_period: 10s
     healthcheck:
       test:

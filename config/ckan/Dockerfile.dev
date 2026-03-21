@@ -42,6 +42,8 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 #   ckanext-excelforms   — not on PyPI
 #   ckanext-matolabtheme — pmd branch, not on PyPI
 # pip resolves the mixed PyPI + git requirements in one pass.
+RUN pip3 install --no-cache-dir flask-debugtoolbar
+
 RUN pip3 install --no-cache-dir \
         ckanext-csvtocsvw \
         ckanext-csvwmapandtransform \
