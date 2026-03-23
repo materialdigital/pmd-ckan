@@ -1,21 +1,11 @@
 #!/bin/bash
-# Auto-create the background jobs API token on first startup.
-#
-# Checks via the CKAN CLI whether a token named "backgroundjobs" already
-# exists for the sysadmin user.  If it does, a previous run already wrote
-# the value into ckan.ini — nothing to do.
-#
-# If no such token exists yet, a new JWT token is minted and written into
-# the relevant ckan.ini settings.
+# Revoke any existing 'backgroundjobs' token and mint a fresh one on every startup,
+# then write it into ckan.ini for all extensions that need it.
 
-_token_list=$(ckan -c "${CKAN_INI}" user token list "${CKAN_SYSADMIN_NAME:-ckan_admin}" 2>/dev/null)
-if echo "${_token_list}" | grep -q "backgroundjobs"; then
-    echo "[02_backgroundjobs] Token 'backgroundjobs' already exists — skipping token generation."
-    return 0
-fi
+echo "[02_backgroundjobs] Revoking old 'backgroundjobs' token (if any)..."
+ckan -c "${CKAN_INI}" user token revoke "${CKAN_SYSADMIN_NAME:-ckan_admin}" backgroundjobs 2>/dev/null || true
 
-echo "[02_backgroundjobs] No 'backgroundjobs' token found — generating one now..."
-
+echo "[02_backgroundjobs] Generating new 'backgroundjobs' token..."
 TOKEN=$(ckan -c "$CKAN_INI" user token add "${CKAN_SYSADMIN_NAME:-ckan_admin}" backgroundjobs 2>/dev/null | tail -1 | tr -d '[:space:]')
 
 if [[ -z "$TOKEN" ]]; then

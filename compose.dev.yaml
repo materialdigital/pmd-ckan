@@ -3,7 +3,6 @@
 # Volumes and networks are inherited from compose.yaml.
 services:
   ckan:
-    image: ckan-dev
     user: 0:0
     build:
       context: ckan-docker/ckan/
