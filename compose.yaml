@@ -99,8 +99,8 @@ services:
   fuseki:
     image: secoresearch/fuseki:4.9.0
     environment:
-      - "JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}"
-      - "ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}"
+      - JDK_JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}
+      - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
       - ENABLE_DATA_WRITE=true
       - ENABLE_UPDATE=true
       - ENABLE_UPLOAD=true
