@@ -41,8 +41,8 @@ RUN pip3 install --no-cache-dir \
         ckanext-markdown-view \
         ckanext-scheming \
         ckanext-dcat && \
-        pip3 install --no-cache-dir -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@pmd#egg=ckanext-matolabtheme && \
-        pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/pmd/requirements.txt && \
+        pip3 install --no-cache-dir -e git+https://github.com/Mat-O-Lab/ckanext-matolabtheme.git@product_catalog#egg=ckanext-matolabtheme && \
+        pip3 install -r https://raw.githubusercontent.com/Mat-O-Lab/ckanext-matolabtheme/product_catalog/requirements.txt && \
         pip3 install --no-cache-dir -e git+https://github.com/open-data/ckanext-citeproc.git#egg=ckanext-citeproc  && \
         pip3 install -r https://raw.githubusercontent.com/open-data/ckanext-citeproc/refs/heads/main/requirements.txt && \
         pip3 install --no-cache-dir -e git+https://github.com/ckan/ckanext-excelforms.git#egg=ckanext-excelforms && \

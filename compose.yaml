@@ -57,6 +57,7 @@ services:
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json
       - ./config/ckan/supervisor-ckan-worker.conf:/etc/supervisor/conf.d/ckan-worker.conf
+      - ./create_products.py:/srv/app/create_products.py
     restart: unless-stopped
     healthcheck:
       test: [CMD, wget, -qO, /dev/null, "http://ckan:${CKAN_PORT}"]
