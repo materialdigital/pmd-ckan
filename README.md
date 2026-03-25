@@ -53,6 +53,23 @@ Before you begin, make sure you have the following installed:
     docker compose up -d
     ```
 
+## Loading Demo Fixtures
+
+The script [`create_products.py`](create_products.py) creates 10 dummy industrial product datasets with resources. It is idempotent — re-running it skips products that already exist.
+
+**Prerequisite:** The stack must be running. On each container start, `config/ckan/02_backgroundjobs.sh` generates a fresh API token and writes it into `ckan.ini`.
+
+Run the script inside the running `ckan` container, reading the token directly from `ckan.ini`:
+
+```bash
+docker compose exec -T ckan sh -c '
+  TOKEN=$(grep -m1 "ckanext.fuseki.ckan_token" "$CKAN_INI" | sed "s/.*= *//")
+  CKAN_URL=http://localhost:5000 CKAN_API_KEY="$TOKEN" python3 -
+' < create_products.py
+```
+
+The command pipes the script via stdin — no file copying required. The token is read live from `ckan.ini` so the command always uses the current valid token regardless of restarts.
+
 ## Config Option
 Debug and Development Mode
 ```bash
