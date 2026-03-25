@@ -1,3 +1,32 @@
+# ---------------------------------------------------------------------------
+# CORS policy maps
+#
+# Two things grant credential-compatible CORS (specific origin echo + credentials):
+#   1. Origin matches CKAN_HOST (the deployment's own hostname)
+#   2. Request carries an Authorization header (API key / Bearer token)
+#
+# Everyone else gets Access-Control-Allow-Origin: * (public data, no credentials).
+# ---------------------------------------------------------------------------
+map $http_origin $origin_whitelisted {
+    default                              0;
+    "~^https?://${CKAN_HOST}(:\d+)?$"  1;
+}
+
+map $http_authorization $has_authorization {
+    default  0;
+    "~^.+"   1;
+}
+
+map "$has_authorization$origin_whitelisted" $cors_origin {
+    default  "*";
+    "~1"     $http_origin;
+}
+
+map "$has_authorization$origin_whitelisted" $cors_credentials {
+    default  "";
+    "~1"     "true";
+}
+
 server {
     listen       ${NGINX_PORT};
     listen  [::]:${NGINX_PORT};
