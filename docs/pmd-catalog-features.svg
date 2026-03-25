@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 390" width="100%">
+  <!-- Title -->
+  <text x="420" y="22" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="bold" fill="#222">PMD Product Catalog &#x2014; Actors &amp; Interactions</text>
+  <text x="420" y="40" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#666">Company staff manage documentation &#x2014; partners, authorities and the public access it via open standards</text>
+
+  <!-- Group headers -->
+  <text x="137" y="82" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="bold" fill="#555" letter-spacing="1">COMPANY &#x2014; INTERNAL</text>
+  <text x="410" y="82" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="bold" fill="#1a3d5c" letter-spacing="1">PMD PRODUCT CATALOG</text>
+  <text x="647" y="82" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="bold" fill="#555" letter-spacing="1">EXTERNAL ACCESS</text>
+
+  <!-- LEFT: Row 1 center y=140 (tops at y=96) -->
+  <polygon points="80,96 118,118 118,162 80,184 42,162 42,118" fill="#0d2a40"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="80" y="134">Upload &amp; Manage</tspan><tspan x="80" dy="11">Documents</tspan></text>
+
+  <polygon points="156,96 194,118 194,162 156,184 118,162 118,118" fill="#0d2a40"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="156" y="134">Organise</tspan><tspan x="156" dy="11">by Product</tspan></text>
+
+  <!-- LEFT: Row 2 center y=206 (offset) -->
+  <polygon points="118,162 156,184 156,228 118,250 80,228 80,184" fill="#1a3d5c"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="118" y="200">Custom Metadata</tspan><tspan x="118" dy="11">Schemas</tspan></text>
+
+  <polygon points="194,162 232,184 232,228 194,250 156,228 156,184" fill="#1a3d5c"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="194" y="200">Access &amp;</tspan><tspan x="194" dy="11">Role Control</tspan></text>
+
+  <!-- LEFT: Row 3 center y=272 (single) -->
+  <polygon points="118,228 156,250 156,294 118,316 80,294 80,250" fill="#2e6096"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="118" y="266">Version</tspan><tspan x="118" dy="11">Control</tspan></text>
+
+  <!-- CENTER: single column x=410, rows y=140,206,272 -->
+  <polygon points="410,96 448,118 448,162 410,184 372,162 372,118" fill="#1a3d5c"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="410" y="134">PMD Product</tspan><tspan x="410" dy="11">Catalog</tspan></text>
+
+  <polygon points="410,162 448,184 448,228 410,250 372,228 372,184" fill="#2e6096"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="410" y="200">Open API &amp;</tspan><tspan x="410" dy="11">Data Standards</tspan></text>
+
+  <polygon points="410,228 448,250 448,294 410,316 372,294 372,250" fill="#4a7fa5"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="410" y="266">Access Control</tspan><tspan x="410" dy="11">&amp; Auth</tspan></text>
+
+  <!-- RIGHT: Row 1 center y=140 -->
+  <polygon points="590,96 628,118 628,162 590,184 552,162 552,118" fill="#4a7fa5"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="590" y="131">Supply Chain</tspan><tspan x="590" dy="11">Partner</tspan><tspan x="590" dy="10">(REST API)</tspan></text>
+
+  <polygon points="666,96 704,118 704,162 666,184 628,162 628,118" fill="#4a7fa5"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="666" y="131">Regulatory</tspan><tspan x="666" dy="11">Authority</tspan><tspan x="666" dy="10">(DCAT)</tspan></text>
+
+  <!-- RIGHT: Row 2 center y=206 (offset) -->
+  <polygon points="628,162 666,184 666,228 628,250 590,228 590,184" fill="#6fa8c9"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="628" y="200">Public /</tspan><tspan x="628" dy="11">Web Portal</tspan></text>
+
+  <polygon points="704,162 742,184 742,228 704,250 666,228 666,184" fill="#6fa8c9"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="704" y="200">Research</tspan><tspan x="704" dy="11">Partner (SPARQL)</tspan></text>
+
+  <!-- RIGHT: Row 3 center y=272 (single, gray dashed = missing link) -->
+  <polygon points="628,228 666,250 666,294 628,316 590,294 590,250" fill="#90a4ae" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="628" y="266">DPP Issuer *</tspan><tspan x="628" dy="11">missing link</tspan></text>
+
+  <!-- Note box -->
+  <rect x="20" y="330" width="800" height="44" fill="#f0f4f8" rx="3" stroke="#ddd" stroke-width="1"/>
+  <text x="30" y="344" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" fill="#444">* <tspan font-weight="bold">DPP Issuer:</tspan> assembles catalog data into a standardised, machine-readable Digital Product Passport</text>
+  <text x="30" y="358" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" fill="#444">and hosts it persistently for partners and public &#x2014; the natural next component after the catalog.</text>
+</svg>

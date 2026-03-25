@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 310" width="100%">
+  <!-- Title -->
+  <text x="410" y="20" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="bold" fill="#222">Supply Chain Use Case &#x2014; From Supplier to Distributor</text>
+  <text x="410" y="36" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#666">Applicable across metals, ceramics, polymers, composites &#x2014; publish once, access everywhere</text>
+
+  <!-- Lane backgrounds -->
+  <rect x="0"   y="44" width="184" height="222" fill="#e8f4f8"/>
+  <rect x="212" y="44" width="184" height="222" fill="#1a3d5c"/>
+  <rect x="424" y="44" width="184" height="222" fill="#e8edf5"/>
+  <rect x="636" y="44" width="184" height="222" fill="#e8f5e9"/>
+
+  <!-- Arrow separators -->
+  <rect x="184" y="44" width="28" height="222" fill="#f0f4f7"/>
+  <rect x="396" y="44" width="28" height="222" fill="#f0f4f7"/>
+  <rect x="608" y="44" width="28" height="222" fill="#f0f4f7"/>
+
+  <!-- Arrow symbols -->
+  <text x="198" y="162" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#4a7fa5">&#x25B6;</text>
+  <text x="410" y="162" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#4a7fa5">&#x25B6;</text>
+  <text x="622" y="162" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#4a7fa5">&#x25B6;</text>
+
+  <!-- Lane headers -->
+  <rect x="0"   y="44" width="184" height="30" fill="#c5dce8"/>
+  <rect x="212" y="44" width="184" height="30" fill="#0d2a40"/>
+  <rect x="424" y="44" width="184" height="30" fill="#cdd4e5"/>
+  <rect x="636" y="44" width="184" height="30" fill="#c8e6c9"/>
+
+  <text x="92"  y="63" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" font-weight="bold" fill="#00696f">Component / Material Supplier</text>
+  <text x="304" y="63" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" font-weight="bold" fill="#90caf9">PMD Product Catalog</text>
+  <text x="516" y="63" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" font-weight="bold" fill="#1a3d5c">Product Manufacturer</text>
+  <text x="728" y="63" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" font-weight="bold" fill="#2e7d32">Distributor / OEM</text>
+
+  <!-- Lane 1 items -->
+  <rect x="8"   y="78"  width="168" height="20" rx="3" fill="rgba(255,255,255,0.55)"/>
+  <text x="92"  y="92"  text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Material certificates &amp; composition</text>
+  <rect x="8"   y="106" width="168" height="20" rx="3" fill="rgba(255,255,255,0.55)"/>
+  <text x="92"  y="120" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">REACH / SDS documentation</text>
+  <rect x="8"   y="134" width="168" height="20" rx="3" fill="rgba(255,255,255,0.55)"/>
+  <text x="92"  y="148" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Standards test reports (EN / ISO)</text>
+  <rect x="8"   y="162" width="168" height="20" rx="3" fill="rgba(255,255,255,0.55)"/>
+  <text x="92"  y="176" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">CE declaration of conformity</text>
+  <rect x="8"   y="190" width="168" height="20" rx="3" fill="rgba(255,255,255,0.55)"/>
+  <text x="92"  y="204" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Sets partner access rights</text>
+
+  <!-- Lane 2 items (light on navy) -->
+  <rect x="220" y="78"  width="168" height="20" rx="3" fill="rgba(255,255,255,0.12)"/>
+  <text x="304" y="92"  text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#c8dff0">Structured dataset per product</text>
+  <rect x="220" y="106" width="168" height="20" rx="3" fill="rgba(255,255,255,0.12)"/>
+  <text x="304" y="120" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#c8dff0">REST API endpoint</text>
+  <rect x="220" y="134" width="168" height="20" rx="3" fill="rgba(255,255,255,0.12)"/>
+  <text x="304" y="148" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#c8dff0">DCAT machine-readable catalog</text>
+  <rect x="220" y="162" width="168" height="20" rx="3" fill="rgba(255,255,255,0.12)"/>
+  <text x="304" y="176" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#c8dff0">SPARQL / Linked Data</text>
+  <rect x="220" y="190" width="168" height="20" rx="3" fill="rgba(255,255,255,0.12)"/>
+  <text x="304" y="204" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#c8dff0">Versioned, access-controlled</text>
+
+  <!-- Lane 3 items -->
+  <rect x="432" y="78"  width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="516" y="92"  text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Queries API for compliance docs</text>
+  <rect x="432" y="106" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="516" y="120" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Downloads substance declarations</text>
+  <rect x="432" y="134" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="516" y="148" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Gets technical specs &amp; test data</text>
+  <rect x="432" y="162" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="516" y="176" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Integrates into ERP / QM system</text>
+  <rect x="432" y="190" width="168" height="20" rx="3" fill="#bbdefb"/>
+  <text x="516" y="204" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="#0d47a1">Re-uses data in own product docs</text>
+
+  <!-- Lane 4 items -->
+  <rect x="644" y="78"  width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="728" y="92"  text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Full compliance traceability</text>
+  <rect x="644" y="106" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="728" y="120" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Automated document access</text>
+  <rect x="644" y="134" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="728" y="148" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Audit-ready at any time</text>
+  <rect x="644" y="162" width="168" height="20" rx="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="728" y="176" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#222">Passes data further downstream</text>
+  <rect x="644" y="190" width="168" height="20" rx="3" fill="#c8e6c9"/>
+  <text x="728" y="204" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="#1b5e20">Ready for DPP submission</text>
+
+  <!-- Value note -->
+  <rect x="0" y="274" width="820" height="32" fill="#e8f5e9" rx="2"/>
+  <rect x="0" y="274" width="4"   height="32" fill="#43a047"/>
+  <text x="14" y="287" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#2e4a2e"><tspan font-weight="bold">Value: </tspan>The supplier publishes once &#x2014; every downstream partner gets live, always-current, structured compliance data via API.</text>
+  <text x="14" y="300" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#2e4a2e">When the DPP becomes mandatory, the documentation is already structured and ready to link.</text>
+</svg>

@@ -10,6 +10,12 @@ This composition of applications provides a solution for hosting material scienc
 - a pipeline for transforming complex csv data common in the domain to [csvw metadata](https://www.w3.org/ns/csvw)
 - A rule based mapping pipeline to combine rdf containing data with knowledge graphs to represent material data, its measurement routine and the processing. A tutorial and the steps involved can be found [here](https://github.com/Mat-O-Lab/IOFMaterialsTutorial).
 
+## Digital Product Passport (DPP)
+
+For an overview of how this catalog supports preparation for the EU Digital Product Passport under Regulation (EU) 2024/1781 (ESPR), including feature diagrams and a supply chain use case, see:
+
+→ [PRODUCT_CATALOG_DPP.md](docs/PRODUCT_CATALOG_DPP.md)
+
 ## Prerequisites
 
 Before you begin, make sure you have the following installed:

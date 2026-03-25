@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 350" width="100%">
+  <!-- Title -->
+  <text x="360" y="22" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="bold" fill="#222">EU Product Documentation Requirements</text>
+  <text x="360" y="40" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#666">What companies need today  &#x2194;  what the Digital Product Passport will additionally require</text>
+
+  <!-- Group headers -->
+  <text x="157" y="68" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="bold" fill="#004d52" letter-spacing="1">REQUIRED TODAY</text>
+  <text x="509" y="68" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="bold" fill="#5ba8a0" letter-spacing="1">EMERGING &#x2014; DPP ANNEX III</text>
+
+  <!-- LEFT: Row 1 center y=128 (tops at y=84) -->
+  <polygon points="100,84 138,106 138,150 100,172 62,150 62,106" fill="#004d52"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="100" y="122">CE Declaration</tspan><tspan x="100" dy="11">of Conformity</tspan></text>
+
+  <polygon points="176,84 214,106 214,150 176,172 138,150 138,106" fill="#00696f"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="176" y="122">REACH</tspan><tspan x="176" dy="11">Compliance</tspan></text>
+
+  <!-- LEFT: Row 2 center y=194 (offset) -->
+  <polygon points="138,150 176,172 176,216 138,238 100,216 100,172" fill="#00838f"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="138" y="188">Safety Data</tspan><tspan x="138" dy="11">Sheet (SDS)</tspan></text>
+
+  <polygon points="214,150 252,172 252,216 214,238 176,216 176,172" fill="#00838f"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="214" y="188">RoHS /</tspan><tspan x="214" dy="11">Hazardous Mat.</tspan></text>
+
+  <!-- LEFT: Row 3 center y=260 -->
+  <polygon points="100,216 138,238 138,282 100,304 62,282 62,238" fill="#26a69a"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="100" y="254">Usage &amp;</tspan><tspan x="100" dy="11">Safety Manual</tspan></text>
+
+  <polygon points="176,216 214,238 214,282 176,304 138,282 138,238" fill="#26a69a"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="176" y="254">Market</tspan><tspan x="176" dy="11">Authorisation</tspan></text>
+
+  <!-- CENTER DIVIDER -->
+  <text x="333" y="176" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#999">DPP adds structure</text>
+  <text x="333" y="187" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#999">&amp; digital access</text>
+  <text x="333" y="206" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="20" fill="#bbb">&#x25B6;</text>
+
+  <!-- RIGHT: Row 1 center y=128 -->
+  <polygon points="452,84 490,106 490,150 452,172 414,150 414,106" fill="#5ba8a0"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="452" y="122">Unique Product</tspan><tspan x="452" dy="11">ID (GTIN)</tspan></text>
+
+  <polygon points="528,84 566,106 566,150 528,172 490,150 490,106" fill="#5ba8a0"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="528" y="122">Manufacturer &amp;</tspan><tspan x="528" dy="11">Facility ID</tspan></text>
+
+  <!-- RIGHT: Row 2 center y=194 (offset) -->
+  <polygon points="490,150 528,172 528,216 490,238 452,216 452,172" fill="#7dbfb7"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="490" y="188">Material</tspan><tspan x="490" dy="11">Composition</tspan></text>
+
+  <polygon points="566,150 604,172 604,216 566,238 528,216 528,172" fill="#7dbfb7"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="white"><tspan x="566" y="188">Substances</tspan><tspan x="566" dy="11">of Concern</tspan></text>
+
+  <!-- RIGHT: Row 3 center y=260 (dark text on light cells) -->
+  <polygon points="452,216 490,238 490,282 452,304 414,282 414,238" fill="#a5d6d0"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="#1a4a47"><tspan x="452" y="254">Carbon</tspan><tspan x="452" dy="11">Footprint</tspan></text>
+
+  <polygon points="528,216 566,238 566,282 528,304 490,282 490,238" fill="#a5d6d0"/>
+  <text text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="bold" fill="#1a4a47"><tspan x="528" y="254">Repairability &amp;</tspan><tspan x="528" dy="11">End-of-Life</tspan></text>
+
+  <!-- Legend -->
+  <rect x="20" y="318" width="12" height="12" fill="#004d52" rx="2"/>
+  <text x="36" y="328" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#666">Required today</text>
+  <rect x="135" y="318" width="12" height="12" fill="#a5d6d0" rx="2"/>
+  <text x="151" y="328" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#666">Emerging DPP requirements (Annex III)</text>
+
+  <!-- Caption -->
+  <text x="700" y="336" text-anchor="end" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-style="italic" fill="#aaa">Source: Reg. (EU) 2024/1781 (ESPR), Annex III &#x2014; delegated acts in preparation</text>
+</svg>
