@@ -4,7 +4,7 @@ This composition of applications provides a solution for hosting material scienc
 
 ## Features
 
-- Central Component is a [CKAN](https://ckan.org/) instance as data management system, with default views for pdf, images, text, csv, html, markdown.
+- Central Component is a [CKAN](https://ckan.org/) 2.12 instance as data management system, with default views for pdf, images, text, csv, html, markdown.
 - A [apche jena fuseki](https://jena.apache.org/documentation/fuseki2/) triple store at a sublocation /fuseki
 - A plugin to create accompanying named graphs in jena fuseki for semantic data contained in ckan datasets including sparql endpoint publication and a user-friendly sparql query interface known as [sparklis](https://github.com/sebferre/sparklis)
 - a pipeline for transforming complex csv data common in the domain to [csvw metadata](https://www.w3.org/ns/csvw)
@@ -30,28 +30,25 @@ Before you begin, make sure you have the following installed:
     cd pmd-ckan
     ```
 
-3. create a .env file, use (example.env)[config/example.env] as a template
+3. create a .env file, use [example.env](config/example.env) as a template
 
-    **all variables starting with CKANEXT__ will be translated to the ckan.ini removing CKANINI__, replacing "__" with "."  and putting the name to lowercase**
+    **all variables starting with CKANINI__ will be translated to the ckan.ini removing CKANINI__, replacing "__" with "."  and putting the name to lowercase**
     examples:
     CKANINI__CSVTOCSVW__FORMATS -> csvtocsvw.formats 
     CKANINI__CSVTOCSVW__SSL_VERIFY -> csvtocsvw.ssl_verify 
 
 4. replace all values in <> braces or are comented to be changed
-5. make changes according to your ssl or proxy configuration in [config/nginx/default.template](config/nginx/default.template)
+5. make changes according to your ssl or proxy configuration in [config/nginx/default.conf.template](config/nginx/default.conf.template)
 6. Run the docker compose stack, it will pull and build the necessary containers
     ```bash
     docker compose up
     ```
 7. After first successful startup, login into ckan with the admin password you defined in your .env
 
-8. **create an API token for the supervisor background tasks** at /user/<ckan_admin_user>/api-tokens, and paste it into your .env file at BACKGROUNDJOBS_API_TOKEN
+8. The API token for the background tasks (csvtocsvw, csvwmapandtransform, fuseki) is generated automatically on every start of the ckan container and written to ckan.ini ([config/ckan/02_backgroundjobs.sh](config/ckan/02_backgroundjobs.sh)). No manual token or restart is needed.
 
-9. restart the docker compose stack in detached mode
-    ```bash
-    docker compose down
-    docker compose up -d
-    ```
+## Database
+The stack runs PostgreSQL 16 (`postgres:16-alpine`). Upgrading from older instances (13+): see [docs/postgres-upgrade.md](docs/postgres-upgrade.md).
 
 ## Config Option
 Debug and Development Mode

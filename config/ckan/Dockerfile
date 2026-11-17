@@ -1,4 +1,4 @@
-FROM ckan/ckan-base:2.11.3
+FROM ckan/ckan-base:2.12.1
 
 USER root
 
@@ -14,7 +14,7 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
-RUN buildDeps='locales libpcre3 libpcre3-dev supervisor' \
+RUN buildDeps='locales libpcre3 libpcre3-dev supervisor git wget' \
     && set -x \
     && apt-get update && apt-get install -y $buildDeps --no-install-recommends \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
@@ -51,6 +51,11 @@ RUN pip3 install --no-cache-dir \
 # ### DCATDE-AP (optional)
 # RUN pip3 install -e git+https://github.com/GovDataOfficial/ckanext-dcatde.git#egg=ckanext-dcatde && \
 #     pip3 install -r https://raw.githubusercontent.com/GovDataOfficial/ckanext-dcatde/master/base-requirements.txt
+
+# redis-py 8 (pinned by CKAN 2.12) defaults socket_timeout=5s, which kills the
+# harvest consumers' blocking blpop. Disable the read timeout.
+RUN sed -i 's/decode_responses=True,/decode_responses=True, socket_timeout=None,/' \
+    $(python3 -c "import os,ckanext.harvest as h;print(os.path.join(os.path.dirname(h.__file__),'queue.py'))")
 
 WORKDIR $APP_DIR/cls
 
