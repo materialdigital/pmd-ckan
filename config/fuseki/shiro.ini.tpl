@@ -1,6 +1,9 @@
 # Licensed under the terms of http://www.apache.org/licenses/LICENSE-2.0
 
 [main]
+# required since Jena 5 (Shiro 2): without a session manager every authenticated request fails with 500 'No SessionManager'
+statelessSessionManager = org.apache.shiro.web.session.mgt.DefaultWebSessionManager
+securityManager.sessionManager = $statelessSessionManager
 # Development
 ssl.enabled = false
 

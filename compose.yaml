@@ -7,7 +7,7 @@ volumes:
 
 services:
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.30-alpine
     env_file:
       - .env
     depends_on:
@@ -97,7 +97,7 @@ services:
       - datastack_net
 
   fuseki:
-    image: secoresearch/fuseki:4.9.0
+    image: secoresearch/fuseki:6.2.0
     environment:
       - JDK_JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}
       - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
@@ -106,10 +106,10 @@ services:
       - ENABLE_UPLOAD=true
       - QUERY_TIMEOUT=60000
     entrypoint: ["/fuseki-init/entrypoint.sh"]
-    command: ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.cmd.FusekiCmd"]
+    # overriding entrypoint clears the image CMD, so it must be repeated (Fuseki 5.x default class)
+    command: ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.main.cmds.FusekiServerCmd"]
     volumes:
       - jena_data:/fuseki-base
-      - ./config/fuseki/index.html:/jena-fuseki/webapp/index.html
       - ./config/fuseki/shiro.ini.tpl:/fuseki-init/shiro.ini.tpl:ro
       - ./config/fuseki/entrypoint.sh:/fuseki-init/entrypoint.sh:ro
     stop_grace_period: 10s

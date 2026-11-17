@@ -50,10 +50,19 @@ Before you begin, make sure you have the following installed:
 ## Database
 The stack runs PostgreSQL 16 (`postgres:16-alpine`). Upgrading from older instances (13+): see [docs/postgres-upgrade.md](docs/postgres-upgrade.md).
 
+## Single sign-on (optional)
+Users can log in through an OpenID Connect provider such as Keycloak with [ckanext-sso](https://github.com/Mat-O-Lab/ckanext-sso) (already part of the `CKAN__PLUGINS` list):
+
+1. Register a client at your provider and allow `${CKAN_SITE_URL}/dashboard` as redirect URL.
+2. Fill in the `EXTENSION: SSO` block of your `.env` (see [config/example.env](config/example.env)): realm, host, client id and secret.
+3. On login the `groups` claim of the provider is matched with the **names** of your CKAN organizations and groups; matching users are added with the role from `CKANINI__CKANEXT__SSO__ROLE` (default `member`).
+4. New users get their CKAN username from the claim set in `CKANINI__CKANEXT__SSO__PROFILE_USERNAME_FIELD` (default `preferred_username`, then `name`); existing users are matched by email.
+5. An LDAP department lookup is available but off unless `CKANINI__CKANEXT__SSO__LDAP_SERVER` is set. All options are described in the [ckanext-sso README](https://github.com/Mat-O-Lab/ckanext-sso#configuration).
+
 ## Config Option
 Debug and Development Mode
 ```bash
-docker compose -f compose.dev.yaml up -d
+docker compose -f compose.yaml -f compose.dev.yaml up -d
 ```
 CKAN plugins in folder ./ckan_plugins will be shared to the ckan container and the server reloads on changes to files for extention test adn development.
       

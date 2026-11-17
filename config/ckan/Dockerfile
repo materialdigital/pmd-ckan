@@ -32,12 +32,12 @@ COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 #   ckanext-excelforms    — not on PyPI
 #   ckanext-matolabtheme  — pmd branch, not on PyPI
 RUN pip3 install --no-cache-dir \
-        ckanext-csvtocsvw \
-        ckanext-csvwmapandtransform \
-        "ckanext-fuseki>=1.0.8" \
+        "ckanext-csvtocsvw>=1.0.5" \
+        "ckanext-csvwmapandtransform>=1.1.1" \
+        "ckanext-fuseki>=1.2.0" \
         ckanext-pdfview \
         ckanext-multiuploadform \
-        ckanext-sso \
+        "ckanext-sso>=1.1.0" \
         ckanext-markdown-view \
         ckanext-scheming \
         ckanext-dcat \
