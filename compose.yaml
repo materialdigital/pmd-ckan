@@ -215,8 +215,10 @@ services:
       - datastack_net
 
   sparklis:
-    # TODO: pin to a specific release tag — https://github.com/sebferre/sparklis/releases
-    image: sferre/sparklis:latest
+    # built from the pinned upstream files on a current nginx, see config/sparklis/Dockerfile
+    # (the upstream sferre/sparklis image is from 2023 and carries its base-image CVEs)
+    build:
+      context: config/sparklis/
     restart: unless-stopped
     healthcheck:
       test: [CMD-SHELL, wget -qO /dev/null http://localhost:8080/ || exit 1]
