@@ -52,6 +52,7 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./config/ckan/start_ckan.sh:/srv/app/start_ckan.sh
+      - ./config/ckan/02_backgroundjobs.sh:/docker-entrypoint.d/02_backgroundjobs.sh
       - ./config/ckan/03_harvest.sh:/docker-entrypoint.d/03_harvest.sh
       - ./config/ckan/04_supervisor.sh:/docker-entrypoint.d/04_supervisor.sh
       - ./config/ckan/dcatde_themes.json:/srv/app/dcatde_themes.json

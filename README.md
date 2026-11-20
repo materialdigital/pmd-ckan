@@ -45,10 +45,23 @@ Before you begin, make sure you have the following installed:
     ```
 7. After first successful startup, login into ckan with the admin password you defined in your .env
 
-8. The API token for the background tasks (csvtocsvw, csvwmapandtransform, fuseki) is generated automatically on every start of the ckan container and written to ckan.ini ([config/ckan/02_backgroundjobs.sh](config/ckan/02_backgroundjobs.sh)). No manual token or restart is needed.
+8. The API token for the background tasks (csvtocsvw, csvwmapandtransform, fuseki) is generated automatically on every start of the ckan container (prod and dev) and written to ckan.ini; the tokens of earlier starts are revoked. Without it these services cannot read private datasets (HTTP 403) ([config/ckan/02_backgroundjobs.sh](config/ckan/02_backgroundjobs.sh)). No manual token or restart is needed.
 
 ## Database
 The stack runs PostgreSQL 16 (`postgres:16-alpine`). Upgrading from older instances (13+): see [docs/postgres-upgrade.md](docs/postgres-upgrade.md).
+
+## Theme
+The CKAN theme comes from [ckanext-matolabtheme](https://github.com/Mat-O-Lab/ckanext-matolabtheme) and works with both CKAN base
+themes. The classic theme is the default; for the CKAN 2.12 opt-in **midnight-blue** theme (default of CKAN 3.0) set in `.env`:
+
+```bash
+CKANINI__CKAN__BASE_PUBLIC_FOLDER=public-midnight-blue
+CKANINI__CKAN__BASE_TEMPLATES_FOLDER=templates-midnight-blue
+```
+
+Keep `CKANINI__CKAN__SITE_LOGO` and `CKANINI__CKAN__FAVICON` as relative paths (`/static/Logo.svg`), as in
+[config/example.env](config/example.env): an absolute `${CKAN_SITE_URL}/...` URL breaks the logo when you open the site with a
+different scheme or hostname (self-signed certificate). More in the extension's README.
 
 ## Single sign-on (optional)
 Users can log in through an OpenID Connect provider such as Keycloak with [ckanext-sso](https://github.com/Mat-O-Lab/ckanext-sso) (already part of the `CKAN__PLUGINS` list):
@@ -59,12 +72,51 @@ Users can log in through an OpenID Connect provider such as Keycloak with [ckane
 4. New users get their CKAN username from the claim set in `CKANINI__CKANEXT__SSO__PROFILE_USERNAME_FIELD` (default `preferred_username`, then `name`); existing users are matched by email.
 5. An LDAP department lookup is available but off unless `CKANINI__CKANEXT__SSO__LDAP_SERVER` is set. All options are described in the [ckanext-sso README](https://github.com/Mat-O-Lab/ckanext-sso#configuration).
 
+## Vulnerability scan
+[scripts/scan-images.sh](scripts/scan-images.sh) scans every image of the compose stack with [Trivy](https://trivy.dev) (run as a
+container, nothing to install) and audits the Python packages of the ckan image with `pip-audit`:
+
+```bash
+scripts/scan-images.sh                 # HIGH and CRITICAL findings that have a fix
+scripts/scan-images.sh -a -f CRITICAL  # include unfixed findings, exit 1 if any CRITICAL is left (for CI)
+```
+
+Reports (one JSON per image and `summary.md`) are written to `reports/security/<timestamp>/` (git-ignored). Findings in a base
+image are closed by updating the tag or rebuilding; [config/sparklis/Dockerfile](config/sparklis/Dockerfile) is an example (the
+upstream image carried 14 critical findings from its 2023 base, ours has none).
+
 ## Config Option
 Debug and Development Mode
 ```bash
 docker compose -f compose.yaml -f compose.dev.yaml up -d
 ```
 CKAN plugins in folder ./ckan_plugins will be shared to the ckan container and the server reloads on changes to files for extention test adn development.
+
+### Switching between dev and prod (volume permissions)
+The dev and the prod ckan container share the named volume `ckan_storage` (uploads and the web asset cache), but they run
+CKAN as different users: the **prod image runs CKAN as uid 503** (`ckan:ckan-sys`, gid 502), the **dev container remaps
+`ckan` to the owner of `./ckan_plugins`** (usually your host uid, e.g. 1000). After running dev, a prod start can therefore
+fail on every page with
+
+```
+PermissionError: [Errno 13] Permission denied: '/var/lib/ckan/webassets/.webassets-cache/...'
+```
+
+Fix it once by giving the volume to the prod user (only ownership changes, no file contents):
+
+```bash
+docker run --rm -v <project>_ckan_storage:/v alpine chown -R 503:502 /v   # <project> is the compose project, e.g. datastack_dev
+```
+
+Going from prod to dev needs nothing: the dev entrypoint ([config/ckan/entrypoint_wrapper.sh](config/ckan/entrypoint_wrapper.sh)) remaps
+the user and fixes the ownership on start. Never run `ckan` commands in the container as root (`docker exec -u ckan ...`),
+because root-owned cache files cause the same error.
+
+### Updating the extensions
+The extensions are installed from PyPI with `>=` pins in [config/ckan/Dockerfile](config/ckan/Dockerfile); `ckanext-harvest`,
+`ckanext-citeproc` and `ckanext-excelforms` are not on PyPI (or too old) and are installed from Git **pinned to a commit**, so a
+build never changes silently. To pick up new releases rebuild the image with `docker compose up -d --build`; to update a
+Git-installed extension change the commit in the Dockerfile.
       
 # Acknowledgments
 The authors would like to thank the Federal Government and the Heads of Government of the Länder for their funding and support within the framework of the [Platform Material Digital](https://www.materialdigital.de) consortium. Funded by the German [Federal Ministry of Education and Research (BMBF)](https://www.bmbf.de/bmbf/en/) through the [MaterialDigital](https://www.bmbf.de/SharedDocs/Publikationen/de/bmbf/5/31701_MaterialDigital.pdf?__blob=publicationFile&v=5) Call in Project [KupferDigital](https://www.materialdigital.de/project/1) - project id 13XP5119.

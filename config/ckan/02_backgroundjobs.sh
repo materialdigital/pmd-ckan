@@ -2,11 +2,18 @@
 # Revoke any existing 'backgroundjobs' token and mint a fresh one on every startup,
 # then write it into ckan.ini for all extensions that need it.
 
-echo "[02_backgroundjobs] Revoking old 'backgroundjobs' token (if any)..."
-ckan -c "${CKAN_INI}" user token revoke "${CKAN_SYSADMIN_NAME:-ckan_admin}" backgroundjobs 2>/dev/null || true
+SYSADMIN="${CKAN_SYSADMIN_NAME:-ckan_admin}"
+
+# 'ckan user token revoke' takes a token ID, not a name, so look the IDs up first. (Revoking by name silently
+# failed, which left one more valid admin token behind on every start.)
+echo "[02_backgroundjobs] Revoking old 'backgroundjobs' tokens (if any)..."
+for id in $(ckan -c "${CKAN_INI}" user token list "$SYSADMIN" 2>/dev/null \
+            | sed -n 's/^[[:space:]]*\[\([^]]*\)\][[:space:]]*backgroundjobs[[:space:]].*/\1/p'); do
+    ckan -c "${CKAN_INI}" user token revoke "$id" >/dev/null 2>&1 || true
+done
 
 echo "[02_backgroundjobs] Generating new 'backgroundjobs' token..."
-TOKEN=$(ckan -c "$CKAN_INI" user token add "${CKAN_SYSADMIN_NAME:-ckan_admin}" backgroundjobs 2>/dev/null | tail -1 | tr -d '[:space:]')
+TOKEN=$(ckan -c "$CKAN_INI" user token add "$SYSADMIN" backgroundjobs 2>/dev/null | tail -1 | tr -d '[:space:]')
 
 if [[ -z "$TOKEN" ]]; then
     echo "[02_backgroundjobs] ERROR: Failed to generate API token. Is the DB initialised?" >&2
