@@ -80,7 +80,9 @@ services:
       - datastack_net
 
   solr:
-    image: "ckan/ckan-solr:${SOLR_IMAGE_VERSION}"
+    # built from the official Solr with the CKAN schema, see config/solr/Dockerfile
+    build:
+      context: config/solr/
     volumes:
       - solr_data:/var/solr
     restart: unless-stopped
@@ -217,7 +219,7 @@ services:
 
   sparklis:
     # built from the pinned upstream files on a current nginx, see config/sparklis/Dockerfile
-    # (the upstream sferre/sparklis image is from 2023 and carries its base-image CVEs)
+    # (the upstream sferre/sparklis image is built on an unmaintained 2023 base)
     build:
       context: config/sparklis/
     restart: unless-stopped

@@ -78,12 +78,16 @@ container, nothing to install) and audits the Python packages of the ckan image 
 
 ```bash
 scripts/scan-images.sh                 # HIGH and CRITICAL findings that have a fix
-scripts/scan-images.sh -a -f CRITICAL  # include unfixed findings, exit 1 if any CRITICAL is left (for CI)
+scripts/scan-images.sh -a -f CRITICAL  # include unfixed findings, exit 1 if any CRITICAL is left
+scripts/scan-images.sh -f CRITICAL -g '^(nginx|datastack_dev-ckan)'   # only the matching images may fail the run
 ```
 
 Reports (one JSON per image and `summary.md`) are written to `reports/security/<timestamp>/` (git-ignored). Findings in a base
-image are closed by updating the tag or rebuilding; [config/sparklis/Dockerfile](config/sparklis/Dockerfile) is an example (the
-upstream image carried 14 critical findings from its 2023 base, ours has none).
+image are closed by updating the tag or rebuilding (see [config/sparklis/Dockerfile](config/sparklis/Dockerfile) and
+[config/solr/Dockerfile](config/solr/Dockerfile) for images built on a current base). Findings you accept for now belong in a
+local, git-ignored `.trivyignore.yaml` with a reason and an expiry date each; the template is
+[scripts/trivyignore.example.yaml](scripts/trivyignore.example.yaml). Results change daily as new advisories appear, so rebuild with
+`docker compose build --pull` and rescan regularly.
 
 ## Config Option
 Debug and Development Mode

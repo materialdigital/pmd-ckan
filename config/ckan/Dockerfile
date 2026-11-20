@@ -21,6 +21,11 @@ RUN buildDeps='locales libpcre3 libpcre3-dev supervisor git wget' \
     && sed -i 's/^# de_DE.UTF-8 UTF-8$/de_DE.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen en_US.UTF-8 de_DE.UTF-8
 
+# keep these OS packages newer than the base image
+RUN apt-get update \
+    && apt-get install -y --only-upgrade --no-install-recommends libpq5 apt libapt-pkg6.0 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy custom initialization scripts
 COPY --chown=ckan-sys:ckan-sys docker-entrypoint.d/* /docker-entrypoint.d/
 
@@ -49,6 +54,11 @@ RUN pip3 install --no-cache-dir \
         pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-excelforms/42aef2e76a256f484314e9f09ce9596d1d275627/requirements.txt && \
         pip3 install --no-cache-dir -e git+https://github.com/ckan/ckanext-harvest.git@f40fdbc4f21003d9884dc2b18aa74e93e1b35678#egg=ckanext-harvest && \
         pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-harvest/f40fdbc4f21003d9884dc2b18aa74e93e1b35678/requirements.txt
+# keep these Python packages newer than the versions pinned by the base image
+# (the ckanext namespace packages fall back to pkgutil when setuptools no longer ships pkg_resources)
+RUN pip3 install --no-cache-dir -U pip "setuptools>=84.1.0" "urllib3>=2.8.0" "msgpack>=1.2.3" \
+    && (pip3 check || true)
+
 # ### DCATDE-AP (optional)
 # RUN pip3 install -e git+https://github.com/GovDataOfficial/ckanext-dcatde.git#egg=ckanext-dcatde && \
 #     pip3 install -r https://raw.githubusercontent.com/GovDataOfficial/ckanext-dcatde/master/base-requirements.txt

@@ -1,0 +1,9 @@
+# Template for the local, git-ignored file .trivyignore.yaml that scripts/scan-images.sh reads (Trivy ignore file, YAML).
+# Add an entry only for a finding that cannot be fixed yet. Keep the real file local: it must not be committed.
+# Every entry needs a reason (statement) and an expiry date, so accepted risk is reviewed instead of forgotten.
+#
+# vulnerabilities:
+#   - id: CVE-0000-00000
+#     statement: "why it does not apply or cannot be fixed yet, and what we wait for"
+#     expired_at: 2027-01-31
+vulnerabilities: []

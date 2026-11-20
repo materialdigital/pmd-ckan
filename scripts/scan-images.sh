@@ -6,18 +6,20 @@
 #     against the PyPA advisory database.
 # Reports are written to reports/security/<timestamp>/ (git-ignored).
 #
-# Usage: scripts/scan-images.sh [-s SEVERITIES] [-f FAIL_ON] [-a] [-p] [-c compose.yaml]
+# Usage: scripts/scan-images.sh [-s SEVERITIES] [-f FAIL_ON] [-g GATE_REGEX] [-a] [-p] [-c compose.yaml]
 #   -s  severities to report          (default HIGH,CRITICAL)
 #   -f  exit 1 if findings of these severities exist (default: never fail)
+#   -g  regex of image names that may fail the run (the exposed tier); other images are only reported
+#       (default: all images). Accepted findings go into a local, git-ignored .trivyignore.yaml (template: scripts/trivyignore.example.yaml)
 #   -a  include vulnerabilities without a fix available (default: only fixable)
 #   -p  skip pip-audit
 #   -c  compose file                  (default compose.yaml)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-SEVERITY=HIGH,CRITICAL; FAIL_ON=""; UNFIXED="--ignore-unfixed"; PIP=1; COMPOSE=compose.yaml
-while getopts "s:f:apc:h" o; do case $o in
-  s) SEVERITY=$OPTARG;; f) FAIL_ON=$OPTARG;; a) UNFIXED="";; p) PIP=0;; c) COMPOSE=$OPTARG;;
+SEVERITY=HIGH,CRITICAL; FAIL_ON=""; GATE=""; UNFIXED="--ignore-unfixed"; PIP=1; COMPOSE=compose.yaml
+while getopts "s:f:g:apc:h" o; do case $o in
+  s) SEVERITY=$OPTARG;; f) FAIL_ON=$OPTARG;; g) GATE=$OPTARG;; a) UNFIXED="";; p) PIP=0;; c) COMPOSE=$OPTARG;;
   *) sed -n '2,14p' "$0"; exit 0;; esac; done
 
 OUT=reports/security/$(date +%Y%m%d-%H%M%S); mkdir -p "$OUT"
@@ -25,9 +27,11 @@ CACHE=${TRIVY_CACHE_DIR:-$HOME/.cache/trivy-docker}; mkdir -p "$CACHE"
 mapfile -t IMAGES < <(docker compose -f "$COMPOSE" config --images | sort -u)
 [ ${#IMAGES[@]} -gt 0 ] || { echo "no images found in $COMPOSE" >&2; exit 2; }
 
+IGNORE_ARGS=()
+if [ -f .trivyignore.yaml ]; then IGNORE_ARGS=(-v "$PWD/.trivyignore.yaml":/ignore.yaml:ro); fi
 trivy() {
   docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$CACHE":/root/.cache \
-    -v "$PWD/$OUT":/out aquasec/trivy:latest "$@"
+    -v "$PWD/$OUT":/out "${IGNORE_ARGS[@]}" aquasec/trivy:latest "$@"
 }
 
 SUMMARY=$OUT/summary.md; FOUND_FAIL=0
@@ -40,11 +44,13 @@ for img in "${IMAGES[@]}"; do
   echo "== trivy $img" >&2
   docker image inspect "$img" >/dev/null 2>&1 || docker pull -q "$img" >/dev/null 2>&1 \
     || { echo "| $img | - | - | not available locally, skipped |" >> "$SUMMARY"; continue; }
-  trivy image -q --scanners vuln --severity "$SEVERITY" $UNFIXED --format json \
+  GATED=1; [ -n "$GATE" ] && ! [[ "$img" =~ $GATE ]] && GATED=0
+  IGN=(); [ -f .trivyignore.yaml ] && IGN=(--ignorefile /ignore.yaml)
+  trivy image -q --scanners vuln --severity "$SEVERITY" $UNFIXED "${IGN[@]}" --format json \
         -o "/out/$name.json" "$img" >/dev/null 2>&1
-  python3 - "$OUT/$name.json" "$img" "${FAIL_ON:-}" >> "$SUMMARY" <<'PY' || FOUND_FAIL=1
+  python3 - "$OUT/$name.json" "$img" "${FAIL_ON:-}" "$GATED" >> "$SUMMARY" <<'PY' || { [ "$GATED" = 1 ] && FOUND_FAIL=1; }
 import sys, json, collections
-path, img, fail_on = sys.argv[1:4]
+path, img, fail_on, gated = sys.argv[1:5]
 try: d = json.load(open(path))
 except Exception: print(f"| {img} | ? | ? | scan failed |"); sys.exit(0)
 c = collections.Counter(); pk = collections.Counter()
@@ -52,7 +58,8 @@ for r in d.get("Results", []):
     for v in r.get("Vulnerabilities") or []:
         c[v["Severity"]] += 1; pk[v["PkgName"]] += 1
 top = ", ".join(f"{p} ({n})" for p, n in pk.most_common(3))
-print(f"| {img} | {c['CRITICAL']} | {c['HIGH']} | {top} |")
+mark = " **[gate]**" if fail_on and gated == "1" else ""
+print(f"| {img}{mark} | {c['CRITICAL']} | {c['HIGH']} | {top} |")
 if fail_on and any(c[s] for s in fail_on.split(",")): sys.exit(1)
 PY
 done
