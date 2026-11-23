@@ -181,3 +181,7 @@ reports/
 
 # local risk acceptance for scripts/scan-images.sh (template: scripts/trivyignore.example.yaml)
 .trivyignore.yaml
+
+# talk material (slides, deck sources)
+docs/talk/
+docs/*.pptx

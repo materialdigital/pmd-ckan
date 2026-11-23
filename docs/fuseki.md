@@ -1,6 +1,9 @@
 # Fuseki in this stack
 
-- Image: `secoresearch/fuseki:6.2.0` (Jena 6, Java 21), started with `FusekiServerCmd`.
+- Image: built from [config/fuseki/Dockerfile](../config/fuseki/Dockerfile) (Apache Jena Fuseki 6.3.0, Java 21), started with `FusekiServerCmd`. It adopts the Dockerfile of `secoresearch/fuseki` ([SemanticComputing/fuseki-docker](https://github.com/SemanticComputing/fuseki-docker), pinned commit) on a current `eclipse-temurin:21-jre-alpine` with the OS packages upgraded and the Jena download verified by sha512. The published `secoresearch/fuseki` image was a stale build, so it is no longer used.
+- The SeCo `silk-arq` extension jar of the upstream image is **not** included (it bundled outdated, unmaintained dependencies, and nothing here uses its SPARQL functions). If you need it, add the `COPY` line described in the Dockerfile; `/javalibs` stays on the classpath.
+- Updating Jena: bump `FUSEKI_VERSION` and both sha512 values in the Dockerfile (`https://downloads.apache.org/jena/binaries/*.sha512`), then `docker compose build fuseki`. Copy the `jena_data` volume before the first start with a new Jena version.
+- Query endpoint of the `ds` dataset is `/ds/sparql` (not `/ds/query`); the dataset uses `tdb:unionDefaultGraph true`, so triples written into the default graph with `INSERT DATA` are not visible to queries, only triples in named graphs are (this is how `ckanext-fuseki` writes).
 - Access: everything except `/$/ping`, `/$/status` and static files requires the Fuseki `admin` login (`config/fuseki/shiro.ini.tpl`, copied to `/fuseki-base/shiro.ini` on every start by `config/fuseki/entrypoint.sh`). The public SPARQL access goes through the CKAN extension `ckanext-fuseki`.
 - `compose.yaml` overrides `entrypoint:`, which makes Compose drop the image `CMD`, so `command:` is repeated there.
 - `FUSEKI_JAVA_OPTS` (`.env`) must contain `-Dfuseki:allowAddByConfigFile=true`: `ckanext-fuseki` creates a dataset per CKAN dataset by posting an assembler description to `POST /$/datasets`, which Fuseki 5.5+ only accepts with this property. See the `ckanext-fuseki` README, "Fuseki 5.x and 6.x".

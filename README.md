@@ -72,6 +72,21 @@ Users can log in through an OpenID Connect provider such as Keycloak with [ckane
 4. New users get their CKAN username from the claim set in `CKANINI__CKANEXT__SSO__PROFILE_USERNAME_FIELD` (default `preferred_username`, then `name`); existing users are matched by email.
 5. An LDAP department lookup is available but off unless `CKANINI__CKANEXT__SSO__LDAP_SERVER` is set. All options are described in the [ckanext-sso README](https://github.com/Mat-O-Lab/ckanext-sso#configuration).
 
+## Container images
+Services that are not CKAN itself run from images pinned in [compose.yaml](compose.yaml), so a `docker compose pull` never changes the stack silently:
+
+| Service | Image | Notes |
+|---|---|---|
+| csvtocsvw | `ghcr.io/mat-o-lab/csvtocsvw:v1.3.6` | |
+| maptomethod | `ghcr.io/mat-o-lab/maptomethod:v1.1.7` | |
+| rdfconverter, yarrrml-parser, rmlmapper | `ghcr.io/mat-o-lab/{rdfconverter,yarrrml-parser,rmlmapper-webapi}:v1.3.4` | released together from [Mat-O-Lab/RDFConverter](https://github.com/Mat-O-Lab/RDFConverter): keep the three tags identical |
+| fuseki | built from [config/fuseki/Dockerfile](config/fuseki/Dockerfile) | upstream Dockerfile on a current temurin base, Jena 6.3.0, see [docs/fuseki.md](docs/fuseki.md) |
+| solr, sparklis | built from `config/solr/`, `config/sparklis/` | current bases |
+| nginx, redis | `nginx:1.30-alpine`, `redis:7-alpine` | |
+
+To upgrade a mat-o-lab image, change the tag in `compose.yaml`, `docker compose pull`, run [scripts/scan-images.sh](scripts/scan-images.sh) and
+recreate the service. The images built here (ckan, db, solr, sparklis, fuseki) must be built (`docker compose build --pull`) before the scan can include them.
+
 ## Vulnerability scan
 [scripts/scan-images.sh](scripts/scan-images.sh) scans every image of the compose stack with [Trivy](https://trivy.dev) (run as a
 container, nothing to install) and audits the Python packages of the ckan image with `pip-audit`:
