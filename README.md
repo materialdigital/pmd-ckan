@@ -80,7 +80,7 @@ Services that are not CKAN itself run from images pinned in [compose.yaml](compo
 | csvtocsvw | `ghcr.io/mat-o-lab/csvtocsvw:v1.3.6` | |
 | maptomethod | `ghcr.io/mat-o-lab/maptomethod:v1.1.7` | |
 | rdfconverter, yarrrml-parser, rmlmapper | `ghcr.io/mat-o-lab/{rdfconverter,yarrrml-parser,rmlmapper-webapi}:v1.3.4` | released together from [Mat-O-Lab/RDFConverter](https://github.com/Mat-O-Lab/RDFConverter): keep the three tags identical |
-| fuseki | built from [config/fuseki/Dockerfile](config/fuseki/Dockerfile) | upstream Dockerfile on a current temurin base, Jena 6.3.0, see [docs/fuseki.md](docs/fuseki.md) |
+| fuseki | built from [config/fuseki/Dockerfile](config/fuseki/Dockerfile) | upstream Dockerfile on a current temurin base, Jena 6.2.0 (6.3.0 breaks `ckanext-fuseki`), see [docs/fuseki.md](docs/fuseki.md) |
 | solr, sparklis | built from `config/solr/`, `config/sparklis/` | current bases |
 | nginx, redis | `nginx:1.30-alpine`, `redis:7-alpine` | |
 
