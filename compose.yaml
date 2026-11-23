@@ -128,7 +128,8 @@ services:
       - datastack_net
 
   csvtocsvw:
-    image: ghcr.io/mat-o-lab/csvtocsvw:latest
+    # pinned to release tags of the upstream repos; bump deliberately
+    image: ghcr.io/mat-o-lab/csvtocsvw:v1.3.6
     environment:
       APP_MODE: production
       PORT: "${CSVTOCSVW_APP_PORT}"
@@ -144,8 +145,8 @@ services:
       - datastack_net
 
   maptomethod:
-    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/MapToMethod/releases
-    image: ghcr.io/mat-o-lab/maptomethod:latest
+    # releases: https://github.com/Mat-O-Lab/MapToMethod/releases
+    image: ghcr.io/mat-o-lab/maptomethod:v1.1.7
     environment:
       APP_NAME: MapToMethod
       PORT: "${MAPTOMETHOD_APP_PORT}"
@@ -162,8 +163,9 @@ services:
       - datastack_net
 
   yarrrml-parser:
-    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/yarrrml-parser/releases
-    image: ghcr.io/mat-o-lab/yarrrml-parser:latest
+    # yarrrml-parser, rmlmapper-webapi and rdfconverter are built from Mat-O-Lab/RDFConverter and
+    # released together: keep the three tags identical. https://github.com/Mat-O-Lab/RDFConverter/releases
+    image: ghcr.io/mat-o-lab/yarrrml-parser:v1.3.4
     environment:
       - "PORT=${PARSER_PORT}"
     restart: unless-stopped
@@ -177,8 +179,7 @@ services:
 
   rmlmapper:
     # Note: changing PORT does not work due to an upstream limitation; port is effectively fixed at 4000.
-    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/RMLMapper/releases
-    image: ghcr.io/mat-o-lab/rmlmapper-webapi:latest
+    image: ghcr.io/mat-o-lab/rmlmapper-webapi:v1.3.4
     environment:
       - "PORT=${MAPPER_PORT}"
     restart: unless-stopped
@@ -191,8 +192,7 @@ services:
       - datastack_net
 
   rdfconverter:
-    # TODO: pin to a specific release tag — https://github.com/Mat-O-Lab/RDFConverter/releases
-    image: ghcr.io/mat-o-lab/rdfconverter:latest
+    image: ghcr.io/mat-o-lab/rdfconverter:v1.3.4
     depends_on:
       yarrrml-parser:
         condition: service_healthy
