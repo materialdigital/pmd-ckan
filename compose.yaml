@@ -100,7 +100,10 @@ services:
       - datastack_net
 
   fuseki:
-    image: secoresearch/fuseki:6.2.0
+    # built from the upstream Dockerfile on a current temurin base, see config/fuseki/Dockerfile
+    # (the published secoresearch/fuseki image is a stale build with old OS layers)
+    build:
+      context: config/fuseki/
     environment:
       - JDK_JAVA_OPTIONS=${FUSEKI_JAVA_OPTS}
       - ADMIN_PASSWORD=${CKANINI__CKANEXT__FUSEKI__PASSWORD}
