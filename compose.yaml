@@ -149,7 +149,7 @@ services:
 
   maptomethod:
     # releases: https://github.com/Mat-O-Lab/MapToMethod/releases
-    image: ghcr.io/mat-o-lab/maptomethod:v1.1.7
+    image: ghcr.io/mat-o-lab/maptomethod:v1.1.8
     environment:
       APP_NAME: MapToMethod
       PORT: "${MAPTOMETHOD_APP_PORT}"
