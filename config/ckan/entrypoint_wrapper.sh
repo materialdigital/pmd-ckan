@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "CKAN Entrypoint Wrapper: Fixing permissions for user 503:502..."
+echo "CKAN Entrypoint Wrapper: Preparing dev permissions..."
 
 # Only fix permissions if in DEBUG/development mode
 if [[ "$DEBUG" == "true" ]]; then
@@ -14,21 +14,21 @@ if [[ "$DEBUG" == "true" ]]; then
         echo "Fixed permissions on /var/lib/ckan"
     fi
     
-    # Fix permissions on extensions directory (critical for dev mode)
-    # Use 775 (rwxrwxr-x) to ensure group has write permissions for editing files
+    # Map the container's ckan user onto the host owner of the bind-mounted
+    # extensions, so files are editable on the host AND writable in the
+    # container, and files created in the container stay owned by the host user.
+    # (No chown/chmod on the mount itself - that would change host ownership.)
     if [ -d "$SRC_EXTENSIONS_DIR" ]; then
-        chown -R :502 "$SRC_EXTENSIONS_DIR" 2>/dev/null || echo "Could not fix permissions on $SRC_EXTENSIONS_DIR"
-        chmod -R 775 "$SRC_EXTENSIONS_DIR" 2>/dev/null || echo "Could not fix permissions on $SRC_EXTENSIONS_DIR"
-        echo "Fixed permissions on $SRC_EXTENSIONS_DIR (set to 775 for group write access)"
+        HOST_UID=$(stat -c %u "$SRC_EXTENSIONS_DIR")
+        OLD_UID=$(id -u ckan)
+        if [ "$HOST_UID" != "0" ] && [ "$HOST_UID" != "$OLD_UID" ]; then
+            usermod -o -u "$HOST_UID" ckan
+            # re-own what the image/volumes had given to the old uid (not the bind mount)
+            find /srv/app /var/lib/ckan -xdev -uid "$OLD_UID" -exec chown -h "$HOST_UID" {} + 2>/dev/null || true
+            echo "Remapped ckan uid $OLD_UID -> $HOST_UID (owner of $SRC_EXTENSIONS_DIR)"
+        fi
     fi
-    
-    # Fix permissions on CKAN source directory (needed for dev mode with bind mounts)
-    if [ -d "$SRC_DIR" ]; then
-        chown -R :502 "$SRC_DIR" 2>/dev/null || echo "Could not fix permissions on $SRC_DIR"
-        chmod -R 755 "$SRC_DIR" 2>/dev/null || echo "Could not fix permissions on $SRC_DIR"
-        echo "Fixed permissions on $SRC_DIR"
-    fi
-    
+
     echo "Permission fixes completed for debug mode."
 else
     echo "Production mode - skipping permission fixes."
