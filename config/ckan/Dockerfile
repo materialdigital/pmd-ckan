@@ -40,7 +40,7 @@ COPY --chown=ckan-sys:ckan-sys patches ${APP_DIR}/patches
 RUN pip3 install --no-cache-dir \
         "ckanext-csvtocsvw>=1.0.5" \
         "ckanext-csvwmapandtransform>=1.1.1" \
-        "ckanext-fuseki>=1.2.0" \
+        "ckanext-fuseki>=1.2.2" \
         "ckanext-pdfview>=0.0.6" \
         "ckanext-multiuploadform>=1.3.4" \
         "ckanext-sso>=1.1.0" \
