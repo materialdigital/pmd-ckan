@@ -94,7 +94,7 @@ container, nothing to install) and audits the Python packages of the ckan image 
 ```bash
 scripts/scan-images.sh                 # HIGH and CRITICAL findings that have a fix
 scripts/scan-images.sh -a -f CRITICAL  # include unfixed findings, exit 1 if any CRITICAL is left
-scripts/scan-images.sh -f CRITICAL -g '^(nginx|datastack_dev-ckan)'   # only the matching images may fail the run
+scripts/scan-images.sh -f CRITICAL -g '^(nginx|pmd-ckan-ckan)'   # only the matching images may fail the run
 ```
 
 Reports (one JSON per image and `summary.md`) are written to `reports/security/<timestamp>/` (git-ignored). Findings in a base
@@ -124,7 +124,7 @@ PermissionError: [Errno 13] Permission denied: '/var/lib/ckan/webassets/.webasse
 Fix it once by giving the volume to the prod user (only ownership changes, no file contents):
 
 ```bash
-docker run --rm -v <project>_ckan_storage:/v alpine chown -R 503:502 /v   # <project> is the compose project, e.g. datastack_dev
+docker run --rm -v <project>_ckan_storage:/v alpine chown -R 503:502 /v   # <project> is the compose project, e.g. pmd-ckan (the directory name unless `COMPOSE_PROJECT_NAME` is set)
 ```
 
 Going from prod to dev needs nothing: the dev entrypoint ([config/ckan/entrypoint_wrapper.sh](config/ckan/entrypoint_wrapper.sh)) remaps
@@ -134,7 +134,10 @@ because root-owned cache files cause the same error.
 ### Updating the extensions
 The extensions are installed from PyPI with `>=` pins in [config/ckan/Dockerfile](config/ckan/Dockerfile); `ckanext-harvest`,
 `ckanext-citeproc` and `ckanext-excelforms` are not on PyPI (or too old) and are installed from Git **pinned to a commit**, so a
-build never changes silently. To pick up new releases rebuild the image with `docker compose up -d --build`; to update a
+build never changes silently. The exception is the theme `ckanext-matolabtheme`, which follows the `pmd` branch of
+[Mat-O-Lab/ckanext-matolabtheme](https://github.com/Mat-O-Lab/ckanext-matolabtheme) (`pmd` is kept in sync with the theme's `main`).
+Theme changes only reach the stack after they are pushed to that branch **and** the ckan image is rebuilt without cache for that layer
+(`docker compose build --no-cache ckan`), otherwise Docker reuses the cached clone. To pick up new releases rebuild the image with `docker compose up -d --build`; to update a
 Git-installed extension change the commit in the Dockerfile.
       
 # Acknowledgments
